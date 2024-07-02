@@ -1,7 +1,10 @@
 package com.github.calamari34.mantaflipbeta;
+//import com.github.calamari34.mantaflipbeta.config.AHConfig;
+//import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
+import com.github.calamari34.mantaflipbeta.utils.Clock;
 import com.google.gson.*;
 
 import com.mojang.realmsclient.client.FileUpload;
@@ -40,20 +43,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import com.github.calamari34.mantaflipbeta.events.ChatReceivedEvent;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-
+import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
 
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
-    private static List<AuctionDetails> auctionDetailsList = new ArrayList<>();
+    public static List<AuctionDetails> auctionDetailsList = new ArrayList<>();
     public static boolean shouldRun = false;
     @Getter @Setter private boolean open = false;
-    static final Map<String, Integer> itemTargetPrices = new HashMap<>();
+    public static final Map<String, Integer> itemTargetPrices = new HashMap<>();
 
     public final ArrayList<HashMap<String, String>> sold_items = new ArrayList<>();
     public final ArrayList<HashMap<String, String>> bought_items = new ArrayList<>();
@@ -61,9 +64,18 @@ public class MantaFlip {
 
     private static final Pattern pattern = Pattern.compile("type[\":]*(flip|FLIP|MS|SNIPE|RISKY|USER)");
 
-    private static long startTime; // Ensure this is correctly set and used
+    public static long startTime;
+    public static Cofl cofl;
+    private final Clock clock = new Clock();
+    public static final Minecraft mc = Minecraft.getMinecraft();
+//    public static AHConfig config;
+//    public static ConfigHandler configHandler;
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
+        MinecraftForge.EVENT_BUS.register(chatReceivedEvent);
+//        (configHandler = new ConfigHandler()).init();
+        (cofl = new Cofl()).onOpen();
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());

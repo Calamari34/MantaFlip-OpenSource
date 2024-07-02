@@ -48,7 +48,7 @@ public class WebhookSend {
 
 
 
-    static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String auctioneerId, String finder) throws IOException {
+    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String auctioneerId, String finder) throws IOException {
         System.out.println("Sending purchase embed");
         DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/1245870790319280128/-lbYN4TCUpTtEg6IfDSObdbUmFSBicbtlKuLdJrmYA4GPowcAVhwTJCTBXNqas9GwomT");
 

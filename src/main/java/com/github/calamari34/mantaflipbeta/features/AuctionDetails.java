@@ -11,31 +11,34 @@ import net.minecraft.network.play.server.S2DPacketOpenWindow;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
+import static com.github.calamari34.mantaflipbeta.MantaFlip.startTime;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
+
 public class AuctionDetails {
     private String itemName;
     private int startingBid;
     private int target;
     private String auctionId;
-    private String finder;
-    private String auctioneerId;
+//    private String finder;
+//    private String auctioneerId;
 
-    public AuctionDetails(String itemName, int startingBid, int target, String auctionId, String finder, String auctioneerId) {
+    public AuctionDetails(String itemName, int startingBid, int target, String auctionId) {
         this.itemName = itemName;
         this.startingBid = startingBid;
         this.target = target;
         this.auctionId = auctionId;
-        this.finder = finder;
-        this.auctioneerId = auctioneerId;
+//        this.finder = finder;
+//        this.auctioneerId = auctioneerId;
 
     }
 
-    public String getAuctioneerId() {
-        return auctioneerId;
-    }
-
-    public String getFinder() {
-        return finder;
-    }
+//    public String getAuctioneerId() {
+//        return auctioneerId;
+//    }
+//
+//    public String getFinder() {
+//        return finder;
+//    }
 
     public String getItemName() {
         return itemName;
@@ -77,10 +80,10 @@ public class AuctionDetails {
         String windowTitle = MantaFlip.getWindow();
         System.out.println("window title: " + windowTitle);
         if (windowTitle == null) {
-            System.out.println("window title is null");
+            startTime = System.currentTimeMillis();
             Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + getAuctionId());
         } else {
-            System.out.println("dont open");
+            sendMessage("don't open");
         }
     }
 

@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
-
 public class PacketListener {
 
     private static ScheduledExecutorService scheduler;

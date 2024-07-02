@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.GuiOpenEvent;
 
 import java.util.Arrays;
@@ -55,27 +54,52 @@ public class CommandMFStart extends CommandBase {
         return true;
     }
 
-    private void startMFProcess(ICommandSender sender, GuiOpenEvent event) {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
+
+    private void startMFProcess(ICommandSender sender, GuiOpenEvent event) {
         executorService.schedule(() -> {
             if (MantaFlip.shouldRun) {
                 sendMessage("Warping to your island");
-
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
+
                 try {
                     Thread.sleep(6000);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     throw new RuntimeException(e);
                 }
+
                 sendMessage("Claiming sold auctions");
                 MantaFlip.shouldRun = false;
-                PacketListener.claimAuctions((GuiChest) event.gui);
 
+                if (event.gui instanceof GuiChest) {
+                    PacketListener.claimAuctions((GuiChest) event.gui);
+                }
             }
         }, 2, TimeUnit.SECONDS);
 
-        // Remember to shut down the executor service properly if it's a one-time task
-        executorService.shutdown();
+        // Start a new thread that checks the screen status every second
+        new Thread(() -> {
+            int nullScreenSeconds = 0;
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+
+                if (Minecraft.getMinecraft().currentScreen == null) {
+                    nullScreenSeconds++;
+                } else {
+                    nullScreenSeconds = 0;
+                }
+
+                if (nullScreenSeconds >= 10) {
+                    MantaFlip.shouldRun = true;
+                }
+            }
+        }).start();
     }
 }

@@ -47,4 +47,7 @@ public class Utils {
             return String.valueOf(number);
         }
     }
+    public static void sendServerMessage(String message) {
+        Minecraft.getMinecraft().thePlayer.sendChatMessage(message);
+    }
 }
