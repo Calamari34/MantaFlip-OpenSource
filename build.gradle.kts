@@ -23,12 +23,13 @@ java {
 
 // Minecraft configuration:
 loom {
-    log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
             // If you don't want mixins, remove these lines
             property("mixin.debug", "true")
             arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
+
         }
     }
     runConfigs {
@@ -40,6 +41,7 @@ loom {
         }
         remove(getByName("server"))
     }
+
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
         // If you don't want mixins, remove this lines
@@ -55,10 +57,15 @@ sourceSets.main {
     output.setResourcesDir(sourceSets.main.flatMap { it.java.classesDirectory })
 }
 
+val shade: Configuration by configurations.creating {
+    configurations.implementation.get().extendsFrom(this)
+}
+
 // Dependencies:
 
 repositories {
     mavenCentral()
+    maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.spongepowered.org/maven/")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
@@ -69,6 +76,19 @@ val shadowImpl: Configuration by configurations.creating {
 }
 
 dependencies {
+    implementation("org.json:json:20240303")
+
+    implementation("com.google.code.gson:gson:2.10.1")
+    compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+    compileOnly("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
+    shade("net.dv8tion:JDA:5.0.0-beta.9") {
+        exclude(module = "opus-java")
+    }
+    implementation("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
+
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
@@ -83,6 +103,7 @@ dependencies {
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
 
 }
+
 
 // Tasks:
 
@@ -125,6 +146,16 @@ val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
 tasks.jar {
     archiveClassifier.set("without-deps")
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    manifest {
+        attributes(
+            mapOf(
+                "ModSide" to "CLIENT",
+                "TweakOrder" to "0",
+                "ForceLoadAsMod" to "true",
+                "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
+            )
+        )
+    }
 }
 
 tasks.shadowJar {
