@@ -42,7 +42,7 @@ public class Cofl {
 
     public void handleMessage(String str) {
         try {
-            if (PacketListener.relisting || !str.startsWith("Received:")) {
+            if (!MantaFlip.shouldRun || PacketListener.relisting || !str.startsWith("Received:")) {
                 return;
             }
             if (pattern.matcher(str).find()) {

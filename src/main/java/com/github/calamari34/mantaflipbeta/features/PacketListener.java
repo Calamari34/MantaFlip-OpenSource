@@ -42,6 +42,10 @@ public class PacketListener {
     private boolean guiNeedsProcessing = false;
     private GuiChest pendingGuiChest = null;
 
+    public PacketListener() {
+        startScreenCheckScheduler();
+    }
+
     @SubscribeEvent
     public void onGuiOpen(GuiOpenEvent event) {
         if (event.gui == null) return;
@@ -517,6 +521,19 @@ public class PacketListener {
 
         // Return -1 if no slot with the specified item was found
         return -1;
+    }
+
+    private void startScreenCheckScheduler() {
+        ScheduledExecutorService screenCheckScheduler = Executors.newSingleThreadScheduledExecutor();
+        screenCheckScheduler.scheduleAtFixedRate(() -> {
+            if (relisting) {
+                Minecraft mc = Minecraft.getMinecraft();
+                if (mc.currentScreen == null) {
+                    System.out.println("Current screen is null, resetting relisting.");
+                    relisting = false;
+                }
+            }
+        }, 0, 5, TimeUnit.SECONDS);
     }
 
 
