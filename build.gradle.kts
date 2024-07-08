@@ -60,6 +60,7 @@ repositories {
     maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.spongepowered.org/maven/")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+    maven("https://jitpack.io")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -76,9 +77,6 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
     implementation("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
-//    shade("net.dv8tion:JDA:5.0.0-beta.9") {
-//        exclude(module = "opus-java")
-//    }
     implementation("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
 
     minecraft("com.mojang:minecraft:1.8.9")
@@ -87,6 +85,9 @@ dependencies {
 
     shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         isTransitive = false
+    }
+    shade("net.dv8tion:JDA:5.0.0-beta.9") {
+        exclude(module = "opus-java")
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
@@ -162,8 +163,6 @@ tasks.shadowJar {
             println("Copying jars into mod: ${it.files}")
         }
     }
-
-    fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)

@@ -73,9 +73,8 @@ public class CommandMFStart extends CommandBase {
                 sendMessage("Claiming sold auctions");
                 MantaFlip.shouldRun = false;
 
-                if (event.gui instanceof GuiChest) {
-                    PacketListener.claimAuctions((GuiChest) event.gui);
-                }
+
+                PacketListener.claimAuctions((GuiChest) event.gui);
             }
         }, 2, TimeUnit.SECONDS);
 

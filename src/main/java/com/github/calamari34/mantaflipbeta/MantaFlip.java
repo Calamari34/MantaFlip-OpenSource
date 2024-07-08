@@ -4,6 +4,7 @@ package com.github.calamari34.mantaflipbeta;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
+import com.github.calamari34.mantaflipbeta.remoteControl.RemoteControl;
 import com.github.calamari34.mantaflipbeta.utils.Clock;
 import com.google.gson.*;
 
@@ -52,6 +53,8 @@ import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
 
+    public static Boolean ToggleClaim = true;
+    public static Boolean ToggleRelist = true;
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
     public static List<AuctionDetails> auctionDetailsList = new ArrayList<>();
     public static boolean shouldRun = false;
@@ -63,15 +66,21 @@ public class MantaFlip {
 
 
     private static final Pattern pattern = Pattern.compile("type[\":]*(flip|FLIP|MS|SNIPE|RISKY|USER)");
+    public static List<Long> timeIntervals = new ArrayList<>(); // Time intervals in minutes
+    public static List<Double> profitValues = new ArrayList<>(); // Cumulative profit values
+
+    private static double cumulativeProfit = 0;
 
     public static long startTime;
     public static Cofl cofl;
     private final Clock clock = new Clock();
     public static final Minecraft mc = Minecraft.getMinecraft();
+    public static RemoteControl remoteControl;
 //    public static AHConfig config;
 //    public static ConfigHandler configHandler;
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        remoteControl = new RemoteControl();
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
         MinecraftForge.EVENT_BUS.register(chatReceivedEvent);
 //        (configHandler = new ConfigHandler()).init();
@@ -80,8 +89,19 @@ public class MantaFlip {
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
     }
+    public static void updateProfit(int profit) {
+        cumulativeProfit += profit;
+        long currentTime = System.currentTimeMillis();
+        long timeElapsed = (currentTime - startTime) / 1000 / 60; // Convert milliseconds to minutes
+        timeIntervals.add(timeElapsed);
+        profitValues.add(cumulativeProfit);
+    }
 
-    public String getWindow() {
+    public static double getCumulativeProfit() {
+        return cumulativeProfit;
+    }
+
+    public static String getWindow() {
         String windowTitle = null;
         if (Minecraft.getMinecraft().currentScreen instanceof GuiChest) {
             GuiChest guiChest = (GuiChest) Minecraft.getMinecraft().currentScreen;

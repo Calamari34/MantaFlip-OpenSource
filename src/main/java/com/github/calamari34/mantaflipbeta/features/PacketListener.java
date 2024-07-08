@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.calamari34.mantaflipbeta.MantaFlip.startTime;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class PacketListener {
@@ -34,21 +35,26 @@ public class PacketListener {
     private static ScheduledExecutorService scheduler;
     private static boolean slotClicked = false;
     public static Boolean relisting = false;
-    public static long endTime;
     public static String isbBed;
     public static long startTime;
     private ScheduledExecutorService windowTitleChecker;
 
-    private boolean guiNeedsProcessing = false;
+    public static boolean guiNeedsProcessing = false;
     private GuiChest pendingGuiChest = null;
+    private String lastGuiScreenTitle = null;
 
     public PacketListener() {
-        startScreenCheckScheduler();
+
+        startFailsafeScheduler();
     }
 
     @SubscribeEvent
     public void onGuiOpen(GuiOpenEvent event) {
-        if (event.gui == null) return;
+        if (event.gui == null)
+        {
+            updateScreenInfo(null);
+            return;
+        }
 
         if (event.gui instanceof GuiChest) {
             pendingGuiChest = (GuiChest) event.gui;
@@ -70,19 +76,13 @@ public class PacketListener {
 
     private void processGuiChest(GuiChest guiChest) {
         try {
-
-
             String windowTitle = getWindowTitle(guiChest);
-
+            updateScreenInfo(windowTitle);
             if (windowTitle == null) {
-
                 return;
             }
-
             System.out.println("Current window title: " + windowTitle);
-
             resetScheduler();
-
             switch (windowTitle) {
                 case "BIN Auction View":
                     handleBinAuctionView(guiChest);
@@ -92,13 +92,15 @@ public class PacketListener {
                     break;
                 case "Co-op Auction House":
                 case "Auction House":
-                    // handleAuctionHouse();
                     break;
                 default:
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            if (scheduler != null && !scheduler.isShutdown()) {
+                scheduler.shutdown();
+            }
         }
     }
 
@@ -118,44 +120,31 @@ public class PacketListener {
 
     }
     private void handleBinAuctionView(GuiChest guiChest) {
+        startTime = System.currentTimeMillis();
         System.out.println("BIN Auction View");
 
         int slot = 31;
         final boolean[] isBed = {false};
         final int flipActionDelay = 100;
         final int multipleBedClicksDelay = 50;
+
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
                 if (itemStack != null) {
                     if (itemStack.getItem() == Items.gold_nugget) {
                         isbBed = "False";
-                        // Perform action for gold nugget
                         checkAndClickSlot(guiChest, slot, Items.gold_nugget);
                     } else if (itemStack.getItem() == Items.potato) {
                         isbBed = "False";
                         Minecraft.getMinecraft().displayGuiScreen(null);
                     } else if (itemStack.getItem() == Items.bed) {
                         isbBed = "True";
-
                         isBed[0] = true;
-                        try {
-                            Thread.sleep(flipActionDelay);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (multipleBedClicksDelay > 0) {
-                            for (int i = 0; i < 3; i++) {
-                                clickWindowSlot(slot);
-                                try {
-                                    Thread.sleep(multipleBedClicksDelay);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        } else {
-
+                        Thread.sleep(flipActionDelay);
+                        for (int i = 0; i < 3; i++) {
                             clickWindowSlot(slot);
+                            Thread.sleep(multipleBedClicksDelay);
                         }
                     } else {
                         isbBed = "false";
@@ -164,7 +153,9 @@ public class PacketListener {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                scheduler.shutdown();
+                if (scheduler != null && !scheduler.isShutdown()) {
+                    scheduler.shutdown();
+                }
             }
         }, 0, 10, TimeUnit.MILLISECONDS);
     }
@@ -185,7 +176,7 @@ public class PacketListener {
                             clickWindowSlot(11);
                             Minecraft.getMinecraft().displayGuiScreen(null);
                             itemClicked[0] = true;
-                            endTime = System.currentTimeMillis(); // Ensure endTime is correctly set
+                             // Ensure endTime is correctly set
                         }
                     }
                 }
@@ -219,17 +210,25 @@ public class PacketListener {
                         if (slot != -1) {
                             System.out.println("Found item in slot " + slot);
                             clickWindowSlot(slot);
+                            relisting = false;
                         } else {
                             System.out.println("Item " + item + " not found in the open GUI");
+                            retryClaimAuction(item);
                         }
                     } else {
                         System.out.println("Current screen is not GuiChest, cannot find items");
+                        retryClaimAuction(item);
                     }
                 }, 2, TimeUnit.SECONDS);
             } else {
                 System.out.println("Current screen is not GuiChest, cannot find items");
+                retryClaimAuction(item);
             }
         }, 2, TimeUnit.SECONDS);
+    }
+
+    private static void retryClaimAuction(String item) {
+        scheduler.schedule(() -> claimAuction(item), 2, TimeUnit.SECONDS);
     }
 
     private static int findSlotWithItemInOpenGui(String itemName) {
@@ -291,11 +290,12 @@ public class PacketListener {
 
     private void resetScheduler() {
         if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdown();
+            scheduler.shutdownNow(); // Ensure all running tasks are stopped
         }
         scheduler = Executors.newScheduledThreadPool(1);
         slotClicked = false;
     }
+
 
     public static void claimAuctions(GuiChest guiChest) {
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/ah");
@@ -523,17 +523,28 @@ public class PacketListener {
         return -1;
     }
 
-    private void startScreenCheckScheduler() {
-        ScheduledExecutorService screenCheckScheduler = Executors.newSingleThreadScheduledExecutor();
-        screenCheckScheduler.scheduleAtFixedRate(() -> {
-            if (relisting) {
-                Minecraft mc = Minecraft.getMinecraft();
-                if (mc.currentScreen == null) {
-                    System.out.println("Current screen is null, resetting relisting.");
-                    relisting = false;
-                }
+    private String lastScreenTitle = null;
+    private long lastScreenTime = 0;
+
+    // Call this method whenever a GUI screen opens or changes
+    private void updateScreenInfo(String currentScreenTitle) {
+        // Check if currentScreenTitle is null before comparing it to lastScreenTitle
+        if (currentScreenTitle == null || !currentScreenTitle.equals(lastScreenTitle)) {
+            lastScreenTitle = currentScreenTitle;
+            lastScreenTime = System.currentTimeMillis();
+        }
+    }
+
+    // Scheduled task to check the condition
+    private void startFailsafeScheduler() {
+        ScheduledExecutorService failsafeScheduler = Executors.newSingleThreadScheduledExecutor();
+        failsafeScheduler.scheduleAtFixedRate(() -> {
+            if (relisting && lastScreenTitle != null && (System.currentTimeMillis() - lastScreenTime) > 10000) {
+                relisting = false;
+                lastScreenTitle = null;
+                System.out.println("Failsafe triggered: relisting set to false due to GUI inactivity.");
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
 

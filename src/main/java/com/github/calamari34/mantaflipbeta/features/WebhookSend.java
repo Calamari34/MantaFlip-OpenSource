@@ -61,6 +61,11 @@ public class WebhookSend {
             e.printStackTrace();
             encodedItemName = itemName; // Fallback to original name if encoding fails
         }
+        if (finder == null) {
+            finder = "Unknown";
+        }else if (auctioneerId == null) {
+            auctioneerId = "Unknown";
+        }
         NumberFormat format = NumberFormat.getInstance();
 //        String username = resolveUsername(auctioneerId);
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
@@ -70,8 +75,8 @@ public class WebhookSend {
                 .addField("Item Worth", formatNumber(targetPrice), false)
                 .addField("Profit", formatNumber(profit), false)
                 .addField("Buy Speed", String.valueOf(elapsedTime), false)
-                .addField("Seller", auctioneerId, false)
-                .addField("Finder", finder, false)
+//                .addField("Seller", auctioneerId, false)
+//                .addField("Finder", finder, false)
                 .addField("Bed Flip", isBed, false)
                 .setFooter("Purse: " + format.format(Utils.getPurse()))
                 .setColor(new Color(0x32D74D))
@@ -120,6 +125,8 @@ public class WebhookSend {
 
         itemName = itemName.toUpperCase().replace(" ", "_").replaceAll("\\W", "");
         itemName = itemName.replaceFirst("\\[Lvl \\d+\\] ", "");
+        itemName = itemName.replaceAll("[^a-zA-Z0-9]", "");
+
 
         String encodedItemName;
         try {

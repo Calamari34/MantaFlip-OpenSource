@@ -2,16 +2,7 @@ package com.github.calamari34.mantaflipbeta.features;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C0EPacketClickWindow;
-import net.minecraft.inventory.Container;
-import net.minecraft.network.play.server.S2DPacketOpenWindow;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
-import static com.github.calamari34.mantaflipbeta.MantaFlip.startTime;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class AuctionDetails {
@@ -29,7 +20,6 @@ public class AuctionDetails {
         this.auctionId = auctionId;
 //        this.finder = finder;
 //        this.auctioneerId = auctioneerId;
-
     }
 
 //    public String getAuctioneerId() {
@@ -56,22 +46,18 @@ public class AuctionDetails {
         return auctionId;
     }
 
-    MantaFlip MantaFlip = new MantaFlip();
-    String windowTitle = MantaFlip.getWindow();
-
     private boolean isOpen = false;
 
     public boolean isOpen() {
         return isOpen;
     }
 
-
     private static long lastCalledTime = 0;
 
     public void sendServerMessage() {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastCalledTime < 2000) {
-            // Less than 10 seconds have passed since the last call, return without doing anything
+            // Less than 2 seconds have passed since the last call, return without doing anything
             return;
         }
 
@@ -80,13 +66,9 @@ public class AuctionDetails {
         String windowTitle = MantaFlip.getWindow();
         System.out.println("window title: " + windowTitle);
         if (windowTitle == null) {
-            startTime = System.currentTimeMillis();
             Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + getAuctionId());
         } else {
             sendMessage("don't open");
         }
     }
-
-
 }
-
