@@ -1,14 +1,15 @@
 import org.apache.commons.lang3.SystemUtils
 
-plugins {
-    idea
-    java
-    id("gg.essential.loom") version "0.10.0.+"
-    id("dev.architectury.architectury-pack200") version "0.1.3"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-}
+        plugins {
+            idea
+            java
+            id("gg.essential.loom") version "0.10.0.+"
+            id("dev.architectury.architectury-pack200") version "0.1.3"
+            id("com.github.johnrengelman.shadow") version "8.1.1"
+        }
 
-// Constants:
+//Constants:
+
 val baseGroup: String by project
 val mcVersion: String by project
 val version: String by project
@@ -22,17 +23,18 @@ java {
 
 // Minecraft configuration:
 loom {
+    log4jConfigs.from(file("log4j2.xml"))
     launchConfigs {
         "client" {
+            // If you don't want mixins, remove these lines
             property("mixin.debug", "true")
-            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker")
-//            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker", "org.spongepowered.asm.launch.MixinTweaker")
-            property("mixin.debug.export", "true")
+            arg("--tweakClass", "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker", "org.spongepowered.asm.launch.MixinTweaker")
         }
     }
     runConfigs {
         "client" {
             if (SystemUtils.IS_OS_MAC_OSX) {
+                // This argument causes a crash on macOS
                 vmArgs.remove("-XstartOnFirstThread")
             }
         }
@@ -40,8 +42,10 @@ loom {
     }
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
+        // If you don't want mixins, remove this lines
         mixinConfig("mixins.$modid.json")
     }
+    // If you don't want mixins, remove these lines
     mixin {
         defaultRefmapName.set("mixins.$modid.refmap.json")
     }
@@ -51,16 +55,14 @@ sourceSets.main {
     output.setResourcesDir(sourceSets.main.flatMap { it.java.classesDirectory })
 }
 
-val shade: Configuration by configurations.creating {
-    configurations.implementation.get().extendsFrom(this)
-}
+// Dependencies:
 
 repositories {
     mavenCentral()
-    maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.spongepowered.org/maven/")
+    // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
-    maven("https://jitpack.io")
+    maven("https://repo.polyfrost.cc/releases")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -68,15 +70,13 @@ val shadowImpl: Configuration by configurations.creating {
 }
 
 dependencies {
-
-    implementation("org.json:json:20240303")
-    implementation("com.google.code.gson:gson:2.10.1")
-    compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
     implementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
-//    shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+    shadowImpl("org.json:json:20240303")
+    shadowImpl("com.google.code.gson:gson:2.10.1")
+    compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
-    implementation("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
     implementation("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
 
     minecraft("com.mojang:minecraft:1.8.9")
@@ -86,25 +86,31 @@ dependencies {
     shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         isTransitive = false
     }
-    shade("net.dv8tion:JDA:5.0.0-beta.9") {
+
+    shadowImpl("net.dv8tion:JDA:5.0.0-beta.9") {
         exclude(module = "opus-java")
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
+
 }
 
-tasks.withType<JavaCompile> {
+// Tasks:
+
+tasks.withType(JavaCompile::class) {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<Jar> {
+tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     archiveBaseName.set(modid)
-    manifest.attributes(
-        "FMLCorePluginContainsFMLMod" to "true",
-        "ForceLoadAsMod" to "true",
-        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-        "MixinConfigs" to "mixins.$modid.json"
-    )
+    manifest.attributes.run {
+        this["FMLCorePluginContainsFMLMod"] = "true"
+        this["ForceLoadAsMod"] = "true"
+
+        // If you don't want mixins, remove these lines
+        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+        this["MixinConfigs"] = "mixins.$modid.json"
+    }
 }
 
 tasks.processResources {
@@ -120,6 +126,7 @@ tasks.processResources {
     rename("(.+_at.cfg)", "META-INF/$1")
 }
 
+
 val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
     archiveClassifier.set("")
     from(tasks.shadowJar)
@@ -128,41 +135,28 @@ val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
 
 tasks.jar {
     archiveClassifier.set("without-deps")
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
 
+    manifest.attributes += mapOf(
+        "ModSide" to "CLIENT",
+        "TweakOrder" to 0,
+        "ForceLoadAsMod" to true,
+        "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
+    )
 }
-tasks {
-    jar {
-        manifest {
-
-            attributes(
-                mapOf(
-                    "FMLCorePluginContainsFMLMod" to true,
-                    "FMLCorePlugin" to "com/github/calamari34/mantaflipbeta.mixins.MixinLoader",
-                    "ForceLoadAsMod" to true,
-                    "ModSide" to "CLIENT",
-                    "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
-                    "TweakOrder" to "0",
-                    "MixinConfigs" to "mixins.${modid}.json"
-                )
-            )
-        }
-        dependsOn(shadowJar)
-        archiveClassifier.set("")
-        enabled = false
-    }
-}
-
 
 tasks.shadowJar {
-    destinationDirectory.set(layout.buildDirectory.dir("badjars"))
-    archiveClassifier.set("all-dev")
+    destinationDirectory.set(layout.buildDirectory.dir("intermediates"))
+    archiveClassifier.set("non-obfuscated-with-deps")
     configurations = listOf(shadowImpl)
     doLast {
         configurations.forEach {
-            println("Copying jars into mod: ${it.files}")
+            println("Copying dependencies into mod: ${it.files}")
         }
     }
+
+    // If you want to include other dependencies and shadow them, you can relocate them in here
+    fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)

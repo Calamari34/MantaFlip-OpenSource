@@ -19,8 +19,8 @@ public class RemoteControl {
     }
 
     public void init() {
-        boolean remoteControl = true;
-        String token = "MTI1ODk3ODgxODU1NTc3NzAzNA.Gk2YHa.ymWUffTjLEX4Cmpv-3hcA4VD1ZYArulnhaqoRg";
+        boolean remoteControl = MantaFlip.configHandler.getBoolean("RemoteControl");
+        String token = MantaFlip.configHandler.getString("BotToken");
         if (!remoteControl) {
             System.out.println("[MantaFlip Remote Control] Remote control disabled, skipping");
             return;
@@ -32,7 +32,7 @@ public class RemoteControl {
         System.out.println("[MantaFlip Remote Control] Enabling remote control bot");
         JDABuilder jda = JDABuilder.createDefault(token);
         jda.addEventListeners(new ReadyListener(), new CommandListener());
-        jda.setActivity(Activity.watching("your COFL macro"));
+        jda.setActivity(Activity.watching("your coins"));
         jda.setStatus(OnlineStatus.ONLINE);
         bot = jda.build();
 
@@ -45,7 +45,9 @@ public class RemoteControl {
                 Commands.slash("command", "Runs a command on client side").setGuildOnly(true).addOptions(new OptionData(OptionType.STRING, "command", "The command to run", true)),
                 Commands.slash("disconnect", "Disconnect from server").setGuildOnly(true),
                 Commands.slash("disable", "Enable a feature of the mod").setGuildOnly(true)
+                        .addOptions(new OptionData(OptionType.STRING, "type", "The type of feature to turn off").addChoice("Auto Claimer", "claimer").addChoice("COFL Macro", "macro").addChoice("Auto Relister", "relister"))
 
-        ).queue();
+
+                ).queue();
     }
 }

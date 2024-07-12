@@ -79,7 +79,7 @@ public class WebhookSend {
 //                .addField("Finder", finder, false)
                 .addField("Bed Flip", isBed, false)
                 .setFooter("Purse: " + format.format(Utils.getPurse()))
-                .setColor(new Color(0x32D74D))
+                .setColor(new Color(0x1ED55F))
                 .setThumbnail("https://sky.coflnet.com/static/icon/" + encodedItemName);
 
         webhook.addEmbed(embed);
@@ -144,7 +144,7 @@ public class WebhookSend {
                 .addField("Listed for", formatNumber(targetPrice), false)
                 .addField("Profit", formatNumber(profit), false)
                 .setFooter("Purse: " + format.format(Utils.getPurse()))
-                .setColor(new Color(0x02ABF8))
+                .setColor(new Color(0xFFA500))
                 .setThumbnail("https://sky.coflnet.com/static/icon/" + encodedItemName);
 
         webhook.addEmbed(embed);
@@ -159,7 +159,7 @@ public class WebhookSend {
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("Captcha")
                 .setDescription("@everyone Captcha detected, please login and solve it (Solver is not implemented yet)")
-                .setColor(new Color(0xFF0000));
+                .setColor(new Color(0xC31E42));
 
         webhook.addEmbed(embed);
         webhook.execute();

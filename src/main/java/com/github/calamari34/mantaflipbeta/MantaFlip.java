@@ -1,6 +1,10 @@
 package com.github.calamari34.mantaflipbeta;
 //import com.github.calamari34.mantaflipbeta.config.AHConfig;
 //import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
+import cc.polyfrost.oneconfig.events.event.InitializationEvent;
+import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
+import com.github.calamari34.mantaflipbeta.config.AHConfig;
+import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
@@ -76,19 +80,32 @@ public class MantaFlip {
     private final Clock clock = new Clock();
     public static final Minecraft mc = Minecraft.getMinecraft();
     public static RemoteControl remoteControl;
-//    public static AHConfig config;
-//    public static ConfigHandler configHandler;
+    public static AHConfig config;
+    public static ConfigHandler configHandler;
+
+
+
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        remoteControl = new RemoteControl();
+
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
         MinecraftForge.EVENT_BUS.register(chatReceivedEvent);
-//        (configHandler = new ConfigHandler()).init();
+        (configHandler = new ConfigHandler()).init();
+        config = new AHConfig();
         (cofl = new Cofl()).onOpen();
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
+        remoteControl = new RemoteControl();
     }
+
+
+    @Subscribe
+    public void initConfig(InitializationEvent ignore) {
+        config = new AHConfig();
+    }
+
+
     public static void updateProfit(int profit) {
         cumulativeProfit += profit;
         long currentTime = System.currentTimeMillis();
