@@ -14,13 +14,22 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumber;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
 
 public class CommandListener extends ListenerAdapter {
+    private MantaFlip mantaFlip;
+
+    public CommandListener(MantaFlip mantaFlip) {
+        this.mantaFlip = mantaFlip;
+    }
+
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -29,22 +38,22 @@ public class CommandListener extends ListenerAdapter {
             ArrayList<HashMap<String, String>> sold_items = MantaFlip.cofl.sold_items;
             ArrayList<HashMap<String, String>> bought_items = MantaFlip.cofl.bought_items;
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor("MantaFlip", "https://cdn.discordapp.com/attachments/1245870773919420456/1258971208855060511/MantaFlip.jpg?ex=6689fbce&is=6688aa4e&hm=03cd035c16fd85bf089e59bf90c9022b5db90b3d49acd7cf309d793b2d6142f2&");
             embed.setTitle("Current Session Statistics");
             embed.addField("Auctions sold", String.valueOf(sold_items.size()), true);
             embed.addField("Auctions bought", String.valueOf(bought_items.size()), true);
             embed.setTimestamp(event.getTimeCreated());
             embed.setImage("attachment://image.png");
-            embed.setFooter("Made by Calamari", "https://cdn.discordapp.com/attachments/1242759092645138474/1261441636123152599/Untitled-1.png?ex=6692f892&is=6691a712&hm=7eccfbe0b4b3d9f7c6a0c4feb9726de761986b1df89c9696826be1b8cfbc86ea&");
+            embed.setColor(new Color(0x9E2C7D));
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
             FileUpload screenshot = FileUpload.fromData(new File(Objects.requireNonNull(BotUtils.takeScreenShot())), "image.png");
             event.getHook().editOriginalAttachments(screenshot).queue();
             event.getHook().editOriginalEmbeds(embed.build()).queue();
 
             if (sold_items.size() > 0) {
                 EmbedBuilder sold = new EmbedBuilder();
-                sold.setAuthor("MantaFlip", "https://cdn.discordapp.com/attachments/1245870773919420456/1258971208855060511/MantaFlip.jpg?ex=6689fbce&is=6688aa4e&hm=03cd035c16fd85bf089e59bf90c9022b5db90b3d49acd7cf309d793b2d6142f2&");
                 sold.setTitle("Sold Items");
-                sold.setFooter("Made by Calamari", "https://cdn.discordapp.com/attachments/1242759092645138474/1261441636123152599/Untitled-1.png?ex=6692f892&is=6691a712&hm=7eccfbe0b4b3d9f7c6a0c4feb9726de761986b1df89c9696826be1b8cfbc86ea&");
+                sold.setColor(new Color(0x9E2C7D));
+                sold.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
                 sold.setTimestamp(event.getTimeCreated());
                 for (HashMap<String, String> sold_item : sold_items) {
                     sold.addField(sold_item.get("item"), "Price: " + sold_item.get("price"), true);
@@ -53,9 +62,9 @@ public class CommandListener extends ListenerAdapter {
             }
             if (bought_items.size() > 0) {
                 EmbedBuilder bought = new EmbedBuilder();
-                bought.setAuthor("MantaFlip", "https://cdn.discordapp.com/attachments/1245870773919420456/1258971208855060511/MantaFlip.jpg?ex=6689fbce&is=6688aa4e&hm=03cd035c16fd85bf089e59bf90c9022b5db90b3d49acd7cf309d793b2d6142f2&");
                 bought.setTitle("Bought Items");
-                bought.setFooter("Made by Calamari", "https://cdn.discordapp.com/attachments/1242759092645138474/1261441636123152599/Untitled-1.png?ex=6692f892&is=6691a712&hm=7eccfbe0b4b3d9f7c6a0c4feb9726de761986b1df89c9696826be1b8cfbc86ea&");
+                bought.setColor(new Color(0x9E2C7D));
+                bought.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
                 bought.setTimestamp(event.getTimeCreated());
                 for (HashMap<String, String> bought_item : bought_items) {
                     bought.addField(bought_item.get("name"), "Price: " + bought_item.get("price"), true);
@@ -64,276 +73,52 @@ public class CommandListener extends ListenerAdapter {
             }
 
         }
-        if (event.getName().equals("screenshot")) {
-            event.deferReply().queue();
-            FileUpload screenshot = FileUpload.fromData(new File(Objects.requireNonNull(BotUtils.takeScreenShot())), "image.png");
-            event.getHook().editOriginalAttachments(screenshot).queue();
-        }
         if (event.getName().equals("profit")) {
             event.deferReply().queue();
-            File profitChart = ChartUtils.createProfitGraph(MantaFlip.timeIntervals, MantaFlip.profitValues);
-            FileUpload chartUpload = FileUpload.fromData(profitChart, "profit_chart.png");
-            event.getHook().editOriginalAttachments(chartUpload).queue();
+            try {
+                File profitChart = ChartUtils.createProfitGraph(MantaFlip.timeIntervals, MantaFlip.profitValues);
+
+                if (profitChart != null && profitChart.exists()) {
+                    FileUpload chartUpload = FileUpload.fromData(profitChart, "profit_chart.png");
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setTitle("Session Profit");
+                    embed.addField("Total Profit for **" + Minecraft.getMinecraft().getSession().getUsername() + "**", "$" + formatNumbers((int) cumulativeProfit), false);
+                    embed.setTimestamp(event.getTimeCreated());
+                    embed.setImage("attachment://profit_chart.png");
+                    embed.setColor(new Color(0x9E2C7D));
+                    embed.setFooter("Remote Session • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+
+                    event.getHook().sendMessageEmbeds(embed.build()).addFiles(chartUpload).queue();
+                } else {
+                    // Handle the case where the chart file could not be created or does not exist
+                    event.getHook().sendMessage("Unable to generate profit chart.").queue();
+                }
+            } catch (Exception e) {
+                // Log the exception or handle it as needed
+                event.getHook().sendMessage("An error occurred while generating the profit chart.").queue();
+            }
         }
-        if (event.getName().equals("enable")) {
-            Instant startTime = Instant.now();
+
+        if (event.getName().equals("enable") || event.getName().equals("disable")) {
+            event.deferReply().queue();
             String type = Objects.requireNonNull(event.getOption("type")).getAsString();
-            if (type.equals("claimer")) {
-                event.deferReply().queue();
-                if (!ToggleClaim)
-                {
-                    if (!PacketListener.relisting) {
-                        ToggleClaim = true;
+            boolean isEnable = event.getName().equals("enable");
 
-
-
-
-
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Enabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Claimer has been enabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0x1ED55F));  // Set the color to green, you can use any color
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    }
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Enabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The claimer is already enabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0x1ED55F));
-                }
-
-            }
-            if (type.equals("macro")) {
-                event.deferReply().queue();
-                if (!shouldRun)
-                {
-                    if (!PacketListener.relisting) {
-                        shouldRun = true;
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Enabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Macro enabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0x1ED55F));  // Set the color to green, you can use any color
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    }
-
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Enabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The macro is already enabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0x1ED55F));
-                }
-
-            }
-            if (type.equals("relister")) {
-                event.deferReply().queue();
-                if (!ToggleRelist)
-                {
-                    if (!PacketListener.relisting) {
-                        ToggleRelist = true;
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Enabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Relister has been enabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0x1ED55F)); // Using green color to indicate the feature is enabled
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-                    }
-
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Enabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The relister is already enabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0x1ED55F));
-
-                }
-
+            switch (type) {
+                case "claimer":
+                    handleToggle(event, isEnable, "claimer");
+                    break;
+                case "macro":
+                    handleToggle(event, isEnable, "macro");
+                    break;
+                case "relister":
+                    handleToggle(event, isEnable, "relister");
+                    break;
+                default:
+                    event.getHook().sendMessage("Unknown type").queue();
             }
         }
-        if (event.getName().equals("disable")) {
-            Instant startTime = Instant.now();
-            String type = Objects.requireNonNull(event.getOption("type")).getAsString();
-            if (type.equals("claimer")) {
-                event.deferReply().queue();
-                if (ToggleClaim)
-                {
-                    if (!PacketListener.relisting) {
-                        ToggleClaim = false;
 
-
-
-
-
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Disabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Claimer has been disabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xC31E42));  // Set the color to green, you can use any color
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    }
-
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Disabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The claimer is already disabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0xC31E42));
-                }
-
-            }
-            if (type.equals("macro")) {
-                event.deferReply().queue();
-                if (shouldRun)
-                {
-                    if (!PacketListener.relisting) {
-                        shouldRun = false;
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Disabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Macro disabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xC31E42));  // Set the color to green, you can use any color
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-
-// Send the embed
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    }
-
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Disabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The macro is already disabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0xC31E42));
-                }
-
-            }
-            if (type.equals("relister")) {
-                event.deferReply().queue();
-                if (ToggleRelist)
-                {
-                    if (!PacketListener.relisting) {
-                        ToggleRelist = false;
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Disabled");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Relister has been disabled.");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xC31E42)); // Using green color to indicate the feature is enabled
-
-                        event.getHook().sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        EmbedBuilder embed = new EmbedBuilder();
-                        embed.setTitle("Action Delayed");
-                        embed.setTimestamp(Instant.now());
-                        embed.setDescription("Currently relisting, wait a second and retry");
-                        embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                        embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                        embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
-                    }
-
-                }
-                else
-                {
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setTitle("Already Disabled");
-                    embed.setTimestamp(Instant.now());
-                    embed.setDescription("The relister is already disabled. No further action is required.");
-                    embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
-                    embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
-                    embed.setColor(new Color(0xC31E42));
-
-                }
-
-            }
-        }
         if (event.getName().equals("command")) {
             String command = Objects.requireNonNull(event.getOption("command")).getAsString();
             Utils.sendServerMessage("/" + command);
@@ -342,6 +127,68 @@ public class CommandListener extends ListenerAdapter {
         if (event.getName().equals("disconnect")) {
             Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
             event.reply("Disconnected").queue();
+        }
+    }
+
+    private void handleToggle(SlashCommandInteractionEvent event, boolean enable, String featureName) {
+        boolean toggleState;
+        String state;
+
+        switch (featureName) {
+            case "claimer":
+                toggleState = mantaFlip.ToggleClaim;
+                break;
+            case "macro":
+                toggleState = mantaFlip.shouldRun;
+                break;
+            case "relister":
+                toggleState = mantaFlip.ToggleRelist;
+                break;
+            default:
+                event.getHook().sendMessage("Unknown feature").queue();
+                return;
+        }
+
+        if (toggleState == enable) {
+            String alreadyState = enable ? "enabled" : "disabled";
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Already " + alreadyState);
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("The " + featureName + " is already " + alreadyState + ". No further action is required.");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(enable ? new Color(0x1ED55F) : new Color(0xC31E42));
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
+        } else if (!PacketListener.relisting) {
+            switch (featureName) {
+                case "claimer":
+                    mantaFlip.ToggleClaim = enable;
+                    break;
+                case "macro":
+                    mantaFlip.shouldRun = enable;
+                    break;
+                case "relister":
+                    mantaFlip.ToggleRelist = enable;
+                    break;
+            }
+            state = enable ? "Enabled" : "Disabled";
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle(state);
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("The " + featureName + " has been " + state.toLowerCase() + ".");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(enable ? new Color(0x1ED55F) : new Color(0xC31E42));
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
+        } else {
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Action Delayed");
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("Currently relisting, wait a second and retry");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(new Color(0xFFA500)); // Using orange color to indicate a warning or delay
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
     }
 }

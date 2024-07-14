@@ -1,6 +1,7 @@
 package com.github.calamari34.mantaflipbeta.player;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
+import com.github.calamari34.mantaflipbeta.features.Claimer;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -60,7 +61,8 @@ public class CommandMFStart extends CommandBase {
     private void startMFProcess(ICommandSender sender, GuiOpenEvent event) {
         executorService.schedule(() -> {
             if (MantaFlip.shouldRun) {
-                sendMessage("Warping to your island");
+
+                                sendMessage("Warping to your island");
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
 
                 try {

@@ -1,6 +1,10 @@
 package com.github.calamari34.mantaflipbeta.utils;
 
+import com.github.calamari34.mantaflipbeta.MantaFlip;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.inventory.ContainerChest;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.network.play.server.S45PacketTitle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -25,7 +29,6 @@ public class Utils {
             purse = matcher.group(2);
             purse = purse.replace(",", "");
             purse = purse.replaceAll("\\..*", "");
-            System.out.println("Purse: " + purse);
             return Integer.parseInt(purse);
         }
         return Integer.parseInt(purse);
@@ -36,7 +39,9 @@ public class Utils {
         Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.AQUA + String.valueOf(EnumChatFormatting.BOLD) + "[MantaFlip] " + EnumChatFormatting.RESET + EnumChatFormatting.WHITE + message));
     }
 
-    public static String formatNumber(int number) {
+
+
+    public static String formatNumbers(int number) {
         if (number >= 1_000_000_000) {
             return number / 1_000_000_000 + "B";
         } else if (number >= 1_000_000) {
@@ -50,4 +55,20 @@ public class Utils {
     public static void sendServerMessage(String message) {
         Minecraft.getMinecraft().thePlayer.sendChatMessage(message);
     }
+
+    public static String convertToShort(int number) {
+        if (number >= 1_000_000_000) return formatNumber((double) number / 1_000_000_000, "b", 4);
+        else if (number >= 100_000_000) return formatNumber((double) number / 1_000_000, "m", 4);
+        else if (number >= 1_000_000) return formatNumber((double) number / 1_000_000, "m", 3);
+        else if (number >= 1_000) return formatNumber((double) number / 1_000, "k", 3);
+        else return Integer.toString(number);
+    }
+    public static String formatNumber(double number, String suffix, int significantFigures) {
+        String format = "%." + significantFigures + "g";
+        return String.format(format, number) + suffix;
+    }
+
+
 }
+
+

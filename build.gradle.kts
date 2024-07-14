@@ -92,6 +92,8 @@ dependencies {
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
+    runtimeOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    shadowImpl("net.java.dev.jna:jna:5.8.0")
 
 }
 

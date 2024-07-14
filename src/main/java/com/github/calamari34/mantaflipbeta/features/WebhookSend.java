@@ -1,5 +1,6 @@
 package com.github.calamari34.mantaflipbeta.features;
 
+import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.utils.DiscordWebhook;
 import com.github.calamari34.mantaflipbeta.utils.Utils;
 import org.json.JSONObject;
@@ -15,12 +16,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 
-import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumber;
+
+import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
 
 public class WebhookSend {
 
+
     public static String resolveUsername(String uuid) {
         try {
+
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -50,7 +54,7 @@ public class WebhookSend {
 
     public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String auctioneerId, String finder) throws IOException {
         System.out.println("Sending purchase embed");
-        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/1245870790319280128/-lbYN4TCUpTtEg6IfDSObdbUmFSBicbtlKuLdJrmYA4GPowcAVhwTJCTBXNqas9GwomT");
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
 
@@ -71,9 +75,9 @@ public class WebhookSend {
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("Flip Purchased")
                 .addField("Item Name", item, false)
-                .addField("Buy Price", formatNumber(price), false)
-                .addField("Item Worth", formatNumber(targetPrice), false)
-                .addField("Profit", formatNumber(profit), false)
+                .addField("Buy Price", formatNumbers(price), false)
+                .addField("Item Worth", formatNumbers(targetPrice), false)
+                .addField("Profit", formatNumbers(profit), false)
                 .addField("Buy Speed", String.valueOf(elapsedTime), false)
 //                .addField("Seller", auctioneerId, false)
 //                .addField("Finder", finder, false)
@@ -86,11 +90,27 @@ public class WebhookSend {
         webhook.execute();
     }
 
+    public static void sendSoldEmbed(String item, int Price, String purchaser) throws IOException {
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        NumberFormat format = NumberFormat.getInstance();
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("Flip Sold")
+                .addField("Item", item, false)
+                .addField("Price", format.format(Price), false)
+                .addField("Purchaser", purchaser, false)
+                .setFooter("Purse: " + format.format(Utils.getPurse()))
+                .setColor(new Color(0x1ED55F));
+        webhook.addEmbed(embed);
+        webhook.execute();
+    }
+
+
 
 
     static void sendListedEmbed(String item, int targetPrice, int initial) throws IOException {
 
-        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/1245870790319280128/-lbYN4TCUpTtEg6IfDSObdbUmFSBicbtlKuLdJrmYA4GPowcAVhwTJCTBXNqas9GwomT");
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
         int profit = targetPrice - initial;
@@ -141,8 +161,8 @@ public class WebhookSend {
         embed.setTitle("Flip Listed")
                 .addField("Listed Item", item, false)
 
-                .addField("Listed for", formatNumber(targetPrice), false)
-                .addField("Profit", formatNumber(profit), false)
+                .addField("Listed for", formatNumbers(targetPrice), false)
+                .addField("Profit", formatNumbers(profit), false)
                 .setFooter("Purse: " + format.format(Utils.getPurse()))
                 .setColor(new Color(0xFFA500))
                 .setThumbnail("https://sky.coflnet.com/static/icon/" + encodedItemName);
@@ -152,7 +172,7 @@ public class WebhookSend {
     }
 
     static void sendCaptchaWebhook() throws IOException {
-        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/1245870790319280128/-lbYN4TCUpTtEg6IfDSObdbUmFSBicbtlKuLdJrmYA4GPowcAVhwTJCTBXNqas9GwomT");
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
 

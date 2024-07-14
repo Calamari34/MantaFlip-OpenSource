@@ -20,7 +20,6 @@ public class ConfigHandler {
         if (hasNoKey("Webhook")) setString("Webhook", "");
         if (hasNoKey("RemoteControl")) setBoolean("RemoteControl", false);
         if (hasNoKey("BotToken")) setString("BotToken", "");
-        if (hasNoKey("LogChannel")) setString("LogChannel", "");
     }
 
     public JsonObject readConfigFile() {

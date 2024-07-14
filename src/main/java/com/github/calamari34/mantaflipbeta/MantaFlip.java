@@ -57,6 +57,7 @@ import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
 
+
     public static Boolean ToggleClaim = true;
     public static Boolean ToggleRelist = true;
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
@@ -73,7 +74,7 @@ public class MantaFlip {
     public static List<Long> timeIntervals = new ArrayList<>(); // Time intervals in minutes
     public static List<Double> profitValues = new ArrayList<>(); // Cumulative profit values
 
-    private static double cumulativeProfit = 0;
+    public static double cumulativeProfit = 0;
 
     public static long startTime;
     public static Cofl cofl;
@@ -97,6 +98,7 @@ public class MantaFlip {
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
         remoteControl = new RemoteControl();
+
     }
 
 

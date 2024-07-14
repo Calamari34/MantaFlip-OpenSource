@@ -31,7 +31,8 @@ public class RemoteControl {
         }
         System.out.println("[MantaFlip Remote Control] Enabling remote control bot");
         JDABuilder jda = JDABuilder.createDefault(token);
-        jda.addEventListeners(new ReadyListener(), new CommandListener());
+        MantaFlip mantaFlip = new MantaFlip();
+        jda.addEventListeners(new ReadyListener(), new CommandListener(mantaFlip));
         jda.setActivity(Activity.watching("your coins"));
         jda.setStatus(OnlineStatus.ONLINE);
         bot = jda.build();
@@ -39,7 +40,6 @@ public class RemoteControl {
         bot.updateCommands().addCommands(
                 Commands.slash("profit", "Analysis of profit in a set session").setGuildOnly(true),
                 Commands.slash("statistics", "Statistics of current session").setGuildOnly(true),
-                Commands.slash("screenshot", "Take a screenshot of the client").setGuildOnly(true),
                 Commands.slash("enable", "Enable a feature of the mod").setGuildOnly(true)
                         .addOptions(new OptionData(OptionType.STRING, "type", "The type of feature to turn on").addChoice("Auto Claimer", "claimer").addChoice("COFL Macro", "macro").addChoice("Auto Relister", "relister")),
                 Commands.slash("command", "Runs a command on client side").setGuildOnly(true).addOptions(new OptionData(OptionType.STRING, "command", "The command to run", true)),

@@ -16,7 +16,6 @@ public class AHConfig extends Config {
         addListener("WEBHOOK", () -> MantaFlip.configHandler.setString("Webhook", WEBHOOK));
         addListener("REMOTE_CONTROL", () -> MantaFlip.configHandler.setBoolean("RemoteControl", REMOTE_CONTROL));
         addListener("BOT_TOKEN", () -> MantaFlip.configHandler.setString("BotToken", BOT_TOKEN));
-        addListener("LOG_CHANNEL", () -> MantaFlip.configHandler.setString("LogChannel", LOG_CHANNEL));
         addDependency("WEBHOOK", "SEND_MESSAGE");
         addDependency("GUI_COLOR", "GUI");
         addDependency("RELIST_CHECK_TIMEOUT", "AUTO_RELIST");
@@ -59,6 +58,4 @@ public class AHConfig extends Config {
     @Text(name = "Bot Token", placeholder = "Token", category = "Remote Control", description = "Discord bot token")
     public static String BOT_TOKEN = "";
 
-    @Text(name = "Log Channel", placeholder = "Channel ID", category = "Remote Control", description = "Discord channel ID to log messages to")
-    public static String LOG_CHANNEL = "";
 }

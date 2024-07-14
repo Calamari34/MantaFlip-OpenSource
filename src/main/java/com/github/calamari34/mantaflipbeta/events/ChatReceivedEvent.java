@@ -2,6 +2,7 @@ package com.github.calamari34.mantaflipbeta.events;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
+import com.github.calamari34.mantaflipbeta.features.Claimer;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.features.WebhookSend;
 import com.github.calamari34.mantaflipbeta.utils.DiscordWebhook;
@@ -24,13 +25,20 @@ import java.util.regex.Pattern;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.auctionDetailsList;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.getTargetPrice;
+import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendSoldEmbed;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
-
+import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
 public class ChatReceivedEvent {
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
     public final ArrayList<HashMap<String, String>> sold_items = new ArrayList<>();
     public final ArrayList<HashMap<String, String>> bought_items = new ArrayList<>();
     public static boolean shouldRun = false;
+
+
+
+
+
+
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent event) {
@@ -44,6 +52,7 @@ public class ChatReceivedEvent {
 
 
             if (message.startsWith("You purchased")) {
+                System.out.println("Purchased something");
                 long endTime = System.currentTimeMillis();
                 elapsedTime = endTime - PacketListener.startTime;
                 if (!MantaFlip.ToggleClaim || !MantaFlip.ToggleRelist) {
@@ -53,7 +62,6 @@ public class ChatReceivedEvent {
                 }
 
 
-                System.out.println("Purchased something");
 
                 Pattern purchasePattern = Pattern.compile("You purchased (.*) for ([\\d,]+) coins!");
                 Matcher purchaseMatcher = purchasePattern.matcher(message);
@@ -67,23 +75,41 @@ public class ChatReceivedEvent {
                     int profit = targetPrice - price;
                     MantaFlip.updateProfit(profit);
 
-                    PacketListener.claimAuction(item);
+                    if (MantaFlip.ToggleClaim)
+                    {
+                        PacketListener.claimAuction(item);
+                    }
+                    else
+                    {
+                        sendMessage("Claiming is disabled");
+                    }
 
-                    System.out.println("Relisting auction!");
+
                     HashMap<String, String> map = new HashMap<>();
                     map.put("name", item);
-                    map.put("price", Utils.formatNumber(price));
+                    map.put("price", Utils.formatNumbers(price));
                     MantaFlip.cofl.bought_items.add(map);
+                    if (MantaFlip.ToggleRelist)
+                    {
 
-                    ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-                    executorService.schedule(() -> {
-                        if (targetPrice != 0) {
-                            PacketListener.relistAuction(item, targetPrice, price);
+                        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+                        executorService.schedule(() -> {
+                            if (targetPrice != 0) {
 
-                        } else {
-                            sendMessage("Item worth is 0. Not relisting item: " + item);
-                        }
-                    }, 5, TimeUnit.SECONDS);
+                                System.out.println("Relisting auction!");
+                                PacketListener.relistAuction(item, targetPrice, price);
+
+                            } else {
+                                sendMessage("Item worth is 0. Not relisting item: " + item);
+                            }
+                        }, 5, TimeUnit.SECONDS);
+
+                    }
+                    else
+                    {
+                        sendMessage("Relisting is disabled");
+                    }
+
 
                     String itemName = formatItemName(item);
 
@@ -134,29 +160,31 @@ public class ChatReceivedEvent {
 
             if (!message.contains(":")) {
                 if (message.contains("[Auction]")) {
-                    Matcher matcher = AUCTION_SOLD_PATTERN.matcher(ScoreboardUtils.cleanSB(message));
-                    if (matcher.matches()) {
+
+                    Pattern soldPattern = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
+                    Matcher soldMatcher = soldPattern.matcher(ScoreboardUtils.cleanSB(message));
+
+                    if (soldMatcher.find()) {
                         String purchaser;
                         try {
-                            purchaser = matcher.group(1).split("\\[Auction] ")[1];
+                            purchaser = soldMatcher.group(1).split("\\[Auction] ")[1];
                         } catch (Exception ignored) {
                             purchaser = message.split("\\[Auction] ")[1].split(" bought")[0];
                         }
+                        sendMessage("Someone bought an item!");
+                        Claimer.open();
+
 
                         HashMap<String, String> sold_item = new HashMap<>();
                         NumberFormat format = NumberFormat.getInstance();
-                        sold_item.put("item", matcher.group(2));
-                        sold_item.put("price", matcher.group(3));
-                        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/1245870790319280128/-lbYN4TCUpTtEg6IfDSObdbUmFSBicbtlKuLdJrmYA4GPowcAVhwTJCTBXNqas9GwomT");
-                        webhook.setUsername("MantaFlip");
-                        new DiscordWebhook.EmbedObject().setTitle("Someone bought an item!")
-                                .setFooter("Purse: " + format.format(Utils.getPurse()))
-                                .addField("Item:", matcher.group(2), true)
-                                .addField("Price:", matcher.group(3), true)
-                                .addField("Purchaser:", purchaser, true)
-                                .setColor(Color.decode("#003153"));
-                        webhook.execute();
+                        sold_item.put("item", soldMatcher.group(2));
+                        sold_item.put("price", soldMatcher.group(3));
+                        sendSoldEmbed(soldMatcher.group(2), Integer.parseInt(soldMatcher.group(3).replace(",", "")), purchaser);
+                        
                     }
+
+
+
                 }
             }
 
