@@ -70,14 +70,20 @@ val shadowImpl: Configuration by configurations.creating {
 }
 
 dependencies {
-    implementation("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+
+    compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
+    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+
+
     shadowImpl("org.json:json:20240303")
     shadowImpl("com.google.code.gson:gson:2.10.1")
+
     compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
-    shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
+
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
     implementation("me.djtheredstoner:DevAuth-forge-legacy:1.1.0")
+
 
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
@@ -92,7 +98,6 @@ dependencies {
     }
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
-    runtimeOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
     shadowImpl("net.java.dev.jna:jna:5.8.0")
 
 }
@@ -110,8 +115,8 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
         this["ForceLoadAsMod"] = "true"
 
         // If you don't want mixins, remove these lines
-        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
-        this["MixinConfigs"] = "mixins.$modid.json"
+//        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+//        this["MixinConfigs"] = "mixins.$modid.json"
     }
 }
 

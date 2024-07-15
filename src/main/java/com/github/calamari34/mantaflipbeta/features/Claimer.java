@@ -36,7 +36,7 @@ public class Claimer {
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/ah");
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.schedule(() -> {
-            sendMessage("Current screen = " + InventoryUtils.getInventoryName());
+
             if (InventoryUtils.inventoryNameContains("Auction House")) {
                 InventoryUtils.clickOpenContainerSlot(15);
 
@@ -86,24 +86,7 @@ public class Claimer {
                             clickWindow2(MantaFlip.mc.thePlayer.openContainer.windowId, i);
                             Thread.sleep(500 + new Random().nextInt(100));
                             clickWindow2(MantaFlip.mc.thePlayer.openContainer.windowId, 31);
-                            if (SEND_MESSAGE) {
-                                try {
-                                    NumberFormat format = NumberFormat.getInstance();
-                                    DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
-                                    webhook.setUsername("MantaFlip");
-                                    DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-                                    embed.setTitle("Just claimed an item!")
-                                            .setFooter("Purse: " + format.format(Utils.getPurse()))
-                                            .addField("Item:", ScoreboardUtils.cleanSB(is.getDisplayName()), true)
-                                            .setColor(new Color(0x055F9A));
-                                    webhook.addEmbed(embed);
-                                    webhook.execute();
 
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("Failed to send webhook");
-                                }
-                            }
                             Thread.sleep(200 + new Random().nextInt(100));
                             open();
                             break;

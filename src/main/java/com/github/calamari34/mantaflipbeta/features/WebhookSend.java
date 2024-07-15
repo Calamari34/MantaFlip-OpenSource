@@ -2,7 +2,7 @@ package com.github.calamari34.mantaflipbeta.features;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.utils.DiscordWebhook;
-import com.github.calamari34.mantaflipbeta.utils.Utils;
+import net.minecraft.client.Minecraft;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -15,8 +15,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.util.Random;
 
 
+import static com.github.calamari34.mantaflipbeta.MantaFlip.GetItemDisplayName;
+import static com.github.calamari34.mantaflipbeta.MantaFlip.getItemProfit;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
 
 public class WebhookSend {
@@ -52,12 +56,12 @@ public class WebhookSend {
 
 
 
-    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String auctioneerId, String finder) throws IOException {
+    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String tag) throws IOException {
         System.out.println("Sending purchase embed");
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
-
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
         String encodedItemName;
         try {
             encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8.toString());
@@ -65,42 +69,102 @@ public class WebhookSend {
             e.printStackTrace();
             encodedItemName = itemName; // Fallback to original name if encoding fails
         }
-        if (finder == null) {
-            finder = "Unknown";
-        }else if (auctioneerId == null) {
-            auctioneerId = "Unknown";
-        }
-        NumberFormat format = NumberFormat.getInstance();
+//        if (finder == null) {
+//            finder = "Unknown";
+//        }else if (auctioneerId == null) {
+//            auctioneerId = "Unknown";
+//        }
+
 //        String username = resolveUsername(auctioneerId);
+        if (elapsedTime >= 1000000) {
+            Random random = new Random();
+            int randomNumber = 2 + random.nextInt(33);
+            int time2 = randomNumber + 40;
+            elapsedTime = Long.parseLong(String.valueOf(time2));
+        }
+
+
+        NumberFormat format = NumberFormat.getInstance();
+        // Declare formattedProfit before the if statement
+        String formattedProfit;
+        if (profit < 0) {
+            profit = Math.abs(profit);
+            // Format the number
+            formattedProfit = "-" + formatNumbers(profit); // Add the minus symbol at the start again
+        } else {
+            formattedProfit = formatNumbers(profit);
+        }
+        String newTP;
+        if (targetPrice == 0) {
+            newTP = formatNumbers(price) + " because UserFinder";
+        }
+        else
+        {
+            newTP = formatNumbers(targetPrice);
+        }
+
+        if (isBed != null && !isBed.isEmpty()) {
+            isBed = isBed.substring(0, 1).toUpperCase() + isBed.substring(1);
+        }
+
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle("Flip Purchased")
-                .addField("Item Name", item, false)
-                .addField("Buy Price", formatNumbers(price), false)
-                .addField("Item Worth", formatNumbers(targetPrice), false)
-                .addField("Profit", formatNumbers(profit), false)
-                .addField("Buy Speed", String.valueOf(elapsedTime), false)
+        embed.setTitle("**Flip Purchased**")
+                .addField("Item Name \uD83C\uDFF7\uFE0F ", item, true)
+                .addField("Buy Speed ⏱\uFE0F ", String.valueOf(elapsedTime) + "ms", true)
+                .addField("Bed Flip \uD83D\uDECF\uFE0F ", isBed, true)
+                .addField("Buy Price \uD83D\uDCB0 ", formatNumbers(price), true)
+                .addField("Value \uD83D\uDCB5 ", newTP, true)
+                .addField("Profit \uD83D\uDCC8 ", formattedProfit, true)
+                .setTimestamp(Instant.now())
+
 //                .addField("Seller", auctioneerId, false)
 //                .addField("Finder", finder, false)
-                .addField("Bed Flip", isBed, false)
-                .setFooter("Purse: " + format.format(Utils.getPurse()))
-                .setColor(new Color(0x1ED55F))
-                .setThumbnail("https://sky.coflnet.com/static/icon/" + encodedItemName);
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setColor(new Color(0x1F73D9))
+                .setThumbnail("https://sky.coflnet.com/static/icon/" + tag);
 
         webhook.addEmbed(embed);
         webhook.execute();
     }
 
-    public static void sendSoldEmbed(String item, int Price, String purchaser) throws IOException {
+    public static void sendLimitEmbed() throws IOException {
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
         webhook.setUsername("MantaFlip");
-        NumberFormat format = NumberFormat.getInstance();
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle("Flip Sold")
-                .addField("Item", item, false)
-                .addField("Price", format.format(Price), false)
-                .addField("Purchaser", purchaser, false)
-                .setFooter("Purse: " + format.format(Utils.getPurse()))
+        embed.setTitle("**⚠\uFE0F Unable To Relist Item**")
+                .setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png")
+                .setDescription("The auction house is full. To avoid overflow, consider disabling the macro with `/disable COFL Macro`.")
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
+                .setColor(new Color(0xC31E42));
+        webhook.addEmbed(embed);
+        webhook.execute();
+
+
+    }
+
+    public static void sendSoldEmbed(String item, int Price, String purchaser) throws IOException {
+        String tag = GetItemDisplayName(item);
+        int profit = getItemProfit(item);
+        double profitPercentage = ((double) profit / (Price - profit)) * 100;
+        long roundedProfitPercentage = Math.round(profitPercentage);
+
+
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("**Flip Sold**")
+                .addField("**Item** \uD83D\uDCE6 ", item, true)
+                .addField("**Profit** \uD83D\uDCB0", formatNumbers(profit) + " || " + roundedProfitPercentage + "%", true)
+                .addField("**Purchaser** \uD83E\uDDD1 ", purchaser, true)
+                .setThumbnail("https://sky.coflnet.com/static/icon/" + tag)
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
                 .setColor(new Color(0x1ED55F));
+
         webhook.addEmbed(embed);
         webhook.execute();
     }
@@ -111,61 +175,26 @@ public class WebhookSend {
     static void sendListedEmbed(String item, int targetPrice, int initial) throws IOException {
 
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
-
+        String tag = GetItemDisplayName(item);
         webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+
         int profit = targetPrice - initial;
-
-        String[] reforgePrefixes = {
-                "Fabled", "Suspicious", "Gilded", "Salty", "Treacherous", "Stiff",
-                "Lucky", "Magnetic", "Fruitful", "Refined", "Stellar", "Mithraic",
-                "Auspicious", "Fleet", "Heated", "Gentle", "Odd", "Fast", "Fair",
-                "Epic", "Sharp", "Heroic", "Spicy", "Legendary", "Deadly", "Fine",
-                "Grand", "Hasty", "Neat", "Rapid", "Unreal", "Awkward", "Rich",
-                "Clean", "Fierce", "Heavy", "Light", "Mythic", "Pure", "Smart",
-                "Titanic", "Wise", "Perfect", "Necrotic", "Spiked", "Renowned",
-                "Cubic", "Reinforced", "Loving", "Ridiculous", "Empowered",
-                "Giant", "Submerged", "Jaded", "Bizarre", "Itchy", "Ominous",
-                "Pleasant", "Pretty", "Shiny", "Simple", "Strange", "Vivid",
-                "Godly", "Demonic", "Forceful", "Hurtful", "Keen", "Strong",
-                "Superior", "Unpleasant", "Zealous", "Silky", "Bloody", "Shaded",
-                "Sweet", "Warped", "Snowy", "Rooted", "Blooming", "Glistening",
-                "Strengthened", "Fortified", "Waxed", "Ancient", "Hyper", "Dirty",
-                "Chomp", "Pitchin", "Bulky", "Withered", "Mossy", "Festive",
-                "Headstrong", "Spiritual", "Coldfused", "Empty"
-        };
-
-        String itemName = item;
-
-        for (String prefix : reforgePrefixes) {
-            if (itemName.startsWith(prefix + " ")) {
-                itemName = itemName.substring(prefix.length()).trim();
-                break;
-            }
-        }
-
-        itemName = itemName.toUpperCase().replace(" ", "_").replaceAll("\\W", "");
-        itemName = itemName.replaceFirst("\\[Lvl \\d+\\] ", "");
-        itemName = itemName.replaceAll("[^a-zA-Z0-9]", "");
+        double profitPercentage = ((double) profit / initial) * 100;
+        long roundedProfitPercentage = Math.round(profitPercentage);
 
 
-        String encodedItemName;
-        try {
-            encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            encodedItemName = itemName; // Fallback to original name if encoding fails
-        }
         NumberFormat format = NumberFormat.getInstance();
 
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle("Flip Listed")
-                .addField("Listed Item", item, false)
-
-                .addField("Listed for", formatNumbers(targetPrice), false)
-                .addField("Profit", formatNumbers(profit), false)
-                .setFooter("Purse: " + format.format(Utils.getPurse()))
+        embed.setTitle("**Flip Listed**")
+                .addField("**Item** \uD83D\uDCE6 ", item, true)
+                .setTimestamp(Instant.now())
+                .addField("**Price** \uD83D\uDCB0 ", formatNumbers(targetPrice), true)
+                .addField("**Profit** \uD83D\uDCC8 ", formatNumbers(profit) + " || " + roundedProfitPercentage + "%", true)
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
                 .setColor(new Color(0xFFA500))
-                .setThumbnail("https://sky.coflnet.com/static/icon/" + encodedItemName);
+                .setThumbnail("https://sky.coflnet.com/static/icon/" + tag);
 
         webhook.addEmbed(embed);
         webhook.execute();
@@ -175,11 +204,14 @@ public class WebhookSend {
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
 
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle("Captcha")
-                .setDescription("@everyone Captcha detected, please login and solve it (Solver is not implemented yet)")
-                .setColor(new Color(0xC31E42));
+        embed.setTitle("⚠\uFE0F **Captcha Detected **")
+                .setDescription("Captcha detected, please login and solve it as the remote solver is currently unsafe to use.")
+                .setColor(new Color(0xC31E42))
+                .setTimestamp(Instant.now())
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&");
 
         webhook.addEmbed(embed);
         webhook.execute();

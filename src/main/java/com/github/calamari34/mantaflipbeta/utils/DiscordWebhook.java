@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.lang.reflect.Array;
+
 /**
  * Class used to execute Discord Webhooks with low effort
  */
@@ -68,6 +70,11 @@ public class DiscordWebhook {
                     rgb = (rgb << 8) + color.getBlue();
                     jsonEmbed.put("color", rgb);
                 }
+
+                if (embed.getTimestamp() != null) {
+                    jsonEmbed.put("timestamp", embed.getTimestamp().toString());
+                }
+
                 EmbedObject.Footer footer = embed.getFooter();
                 EmbedObject.Image image = embed.getImage();
                 EmbedObject.Thumbnail thumbnail = embed.getThumbnail();
@@ -124,7 +131,6 @@ public class DiscordWebhook {
         this.embeds.clear();
     }
 
-    // TODO: Lombok! I'm gonna add it soon. The code looks bad right now :/
     public static class EmbedObject {
         private @Getter String title;
         private @Getter String description;
@@ -135,6 +141,7 @@ public class DiscordWebhook {
         private @Getter Image image;
         private @Getter Author author;
         private final @Getter List<Field> fields = new ArrayList<>();
+        private @Getter Instant timestamp;  // Added timestamp field
 
         public EmbedObject setTitle(String title) {
             this.title = title;
@@ -156,8 +163,8 @@ public class DiscordWebhook {
             return this;
         }
 
-        public EmbedObject setFooter(String text) {
-            this.footer = new Footer(text, null);
+        public EmbedObject setFooter(String text, String iconUrl) {
+            this.footer = new Footer(text, iconUrl);
             return this;
         }
 
@@ -178,6 +185,11 @@ public class DiscordWebhook {
 
         public EmbedObject addField(String name, String value, boolean inline) {
             this.fields.add(new Field(name, value, inline));
+            return this;
+        }
+
+        public EmbedObject setTimestamp(Instant timestamp) {
+            this.timestamp = timestamp;
             return this;
         }
 

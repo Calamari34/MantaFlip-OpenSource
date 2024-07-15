@@ -34,14 +34,15 @@ import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class PacketListener {
 
-
+    public static long auctionHouseOpenTime;
+    public static long escrowTime;
     private static ScheduledExecutorService scheduler;
     private static ScheduledExecutorService failsafeScheduler;
     private static boolean slotClicked = false;
     public static Boolean relisting = false;
-    public static long endTime;
+
     public static String isbBed;
-    public static long startTime;
+
     private ScheduledExecutorService windowTitleChecker;
 
     private boolean guiNeedsProcessing = false;
@@ -98,6 +99,7 @@ public class PacketListener {
             updateScreenInfo(windowTitle);
             switch (windowTitle) {
                 case "BIN Auction View":
+                    auctionHouseOpenTime = System.currentTimeMillis();
                     handleBinAuctionView(guiChest);
                     break;
                 case "Confirm Purchase":
@@ -148,6 +150,7 @@ public class PacketListener {
                     } else if (itemStack.getItem() == Items.bed) {
                         isbBed = "True";
 
+
                         isBed[0] = true;
                         try {
                             Thread.sleep(flipActionDelay);
@@ -195,7 +198,7 @@ public class PacketListener {
                             clickWindowSlot(11);
                             Minecraft.getMinecraft().displayGuiScreen(null);
                             itemClicked[0] = true;
-                            endTime = System.currentTimeMillis(); // Ensure endTime is correctly set
+
                         }
                     }
                 }
@@ -229,6 +232,9 @@ public class PacketListener {
                         if (slot != -1) {
                             System.out.println("Found item in slot " + slot);
                             clickWindowSlot(slot);
+                            scheduler.schedule(() -> {
+                                clickWindowSlot(31);
+                            }, 500, TimeUnit.MILLISECONDS);
                         } else {
                             System.out.println("Item " + item + " not found in the open GUI");
                         }
@@ -249,15 +255,15 @@ public class PacketListener {
             ContainerChest chest = (ContainerChest) guiChest.inventorySlots;
             IInventory lowerChestInventory = chest.getLowerChestInventory();
 
-            // Now you can use lowerChestInventory
-
-
             System.out.println("Scanning inventory slots...");
             for (int i = 0; i < lowerChestInventory.getSizeInventory(); i++) {
                 ItemStack stackInSlot = lowerChestInventory.getStackInSlot(i);
                 if (stackInSlot != null) {
-                    System.out.println("Slot " + i + ": " + stackInSlot.getDisplayName());
-                    if (stackInSlot.getDisplayName().contains(itemName)) {
+                    // Remove Minecraft formatting codes from the item name
+                    String cleanedItemName = stackInSlot.getDisplayName().replaceAll("§.", "");
+                    System.out.println("Slot " + i + ": " + cleanedItemName);
+                    if (cleanedItemName.contains(itemName)) {
+                        System.out.println("Found item: " + cleanedItemName + " in slot " + i);
                         return i;
                     }
                 } else {
@@ -408,11 +414,16 @@ public class PacketListener {
                             Packet<?> packet = new C12PacketUpdateSign(tileSign.getPos(), tileSign.signText);
                             mc.thePlayer.sendQueue.addToSendQueue(packet);
                             System.out.println("Typed " + priceStr + " in the sign");
+                            int slotIndex = AUCTION_LENGTH == 0 ? 10 :
+                                    AUCTION_LENGTH == 1 ? 11 :
+                                            AUCTION_LENGTH == 2 ? 12 :
+                                                    AUCTION_LENGTH == 3 ? 13 :
+                                                            AUCTION_LENGTH == 4 ? 14 : 12;
 
                             executorService.schedule(() -> {
                                 clickWindowSlot(33);
                                 executorService.schedule(() -> {
-                                    clickInventorySlot(AUCTION_LENGTH == 0 ? 10 : AUCTION_LENGTH == 1 ? 11 : AUCTION_LENGTH == 2 ? 12 : AUCTION_LENGTH == 3 ? 13 : AUCTION_LENGTH == 4 ? 14 : 12);
+                                    clickWindowSlot(slotIndex);
                                         executorService.schedule(() -> {
                                             clickWindowSlot(29);
                                             executorService.schedule(() -> {
@@ -535,18 +546,30 @@ public class PacketListener {
     }
 
     // Call this method whenever a GUI screen opens or changes
+    private long screenTitleNullTime = -1; // Initialize to -1 to indicate no null screenTitle
+
+    // Modify the updateScreenInfo method to track when screenTitle becomes null
     private void updateScreenInfo(String currentScreenTitle) {
-        // Check if currentScreenTitle is null before comparing it to lastScreenTitle
-        if (currentScreenTitle == null || !currentScreenTitle.equals(lastScreenTitle)) {
-            lastScreenTitle = currentScreenTitle;
-            lastScreenTime = System.currentTimeMillis();
+        if (currentScreenTitle == null) {
+            if (screenTitleNullTime == -1) { // screenTitle just became null
+                screenTitleNullTime = System.currentTimeMillis();
+            }
+        } else {
+            screenTitleNullTime = -1; // Reset since screenTitle is not null
         }
+        lastScreenTitle = currentScreenTitle;
+        lastScreenTime = System.currentTimeMillis();
     }
 
-    // Scheduled task to check the condition
+    // Modify the startFailsafeScheduler method to include the check for screenTitle being null for 5 seconds
     private void startFailsafeScheduler() {
         failsafeScheduler = Executors.newSingleThreadScheduledExecutor();
         failsafeScheduler.scheduleAtFixedRate(() -> {
+            if (screenTitleNullTime != -1 && (System.currentTimeMillis() - screenTitleNullTime) > 5000) {
+                relisting = false;
+                screenTitleNullTime = -1; // Reset to avoid repeatedly setting relisting to false
+                System.out.println("screenTitle has been null for more than 5 seconds, relisting set to false.");
+            }
             if (relisting && lastScreenTitle != null && (System.currentTimeMillis() - lastScreenTime) > 10000) {
                 relisting = false;
                 lastScreenTitle = null;

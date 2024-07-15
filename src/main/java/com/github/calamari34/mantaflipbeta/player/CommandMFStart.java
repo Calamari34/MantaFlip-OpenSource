@@ -62,7 +62,8 @@ public class CommandMFStart extends CommandBase {
         executorService.schedule(() -> {
             if (MantaFlip.shouldRun) {
 
-                                sendMessage("Warping to your island");
+
+                sendMessage("Warping to your island");
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
 
                 try {

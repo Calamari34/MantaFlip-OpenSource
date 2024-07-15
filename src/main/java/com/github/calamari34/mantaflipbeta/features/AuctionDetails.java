@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class AuctionDetails {
+    private String tag;
     private String itemName;
     private int startingBid;
     private int target;
@@ -13,11 +14,12 @@ public class AuctionDetails {
 //    private String finder;
 //    private String auctioneerId;
 
-    public AuctionDetails(String itemName, int startingBid, int target, String auctionId) {
+    public AuctionDetails(String itemName, int startingBid, int target, String auctionId, String tag) {
         this.itemName = itemName;
         this.startingBid = startingBid;
         this.target = target;
         this.auctionId = auctionId;
+        this.tag = tag;
 //        this.finder = finder;
 //        this.auctioneerId = auctioneerId;
     }
@@ -33,6 +35,7 @@ public class AuctionDetails {
     public String getItemName() {
         return itemName;
     }
+    public String getTag() { return tag;}
 
     public int getStartingBid() {
         return startingBid;
@@ -71,4 +74,6 @@ public class AuctionDetails {
             sendMessage("don't open");
         }
     }
+
+
 }

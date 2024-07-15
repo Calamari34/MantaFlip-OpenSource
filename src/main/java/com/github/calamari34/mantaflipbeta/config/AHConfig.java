@@ -11,7 +11,7 @@ import com.github.calamari34.mantaflipbeta.MantaFlip;
 
 public class AHConfig extends Config {
     public AHConfig() {
-        super(new Mod("MantaFlip", ModType.SKYBLOCK, "/assets/MantaFlip.png", 84, 84), "MantaFlip.json");
+        super(new Mod("MantaFlip", ModType.SKYBLOCK, "/assets/MantaFlip.png"), "MantaFlip.json");
         initialize();
         addListener("WEBHOOK", () -> MantaFlip.configHandler.setString("Webhook", WEBHOOK));
         addListener("REMOTE_CONTROL", () -> MantaFlip.configHandler.setBoolean("RemoteControl", REMOTE_CONTROL));

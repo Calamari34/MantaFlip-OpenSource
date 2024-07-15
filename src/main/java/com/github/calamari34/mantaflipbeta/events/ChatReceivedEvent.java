@@ -23,8 +23,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.github.calamari34.mantaflipbeta.MantaFlip.auctionDetailsList;
-import static com.github.calamari34.mantaflipbeta.MantaFlip.getTargetPrice;
+import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
+import static com.github.calamari34.mantaflipbeta.features.PacketListener.escrowTime;
+import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendLimitEmbed;
 import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendSoldEmbed;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
@@ -36,16 +37,27 @@ public class ChatReceivedEvent {
 
 
 
-
+    private long elapsedTime = 0;
 
 
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent event) {
-        long elapsedTime = 0;
+
 
         try {
             String message = event.message.getUnformattedText();
+
+            if (message.contains("Putting coins in escrow")) {
+
+                escrowTime = System.currentTimeMillis();
+                elapsedTime = escrowTime - PacketListener.auctionHouseOpenTime;
+                System.out.println("Elapsed time: " + elapsedTime + "ms");
+            }
+
+            if (message.contains("Reached the active auctions limit!")) {
+                sendLimitEmbed();
+            }
 
 
 
@@ -53,8 +65,8 @@ public class ChatReceivedEvent {
 
             if (message.startsWith("You purchased")) {
                 System.out.println("Purchased something");
-                long endTime = System.currentTimeMillis();
-                elapsedTime = endTime - PacketListener.startTime;
+
+
                 if (!MantaFlip.ToggleClaim || !MantaFlip.ToggleRelist) {
                     sendMessage("Claiming and relisting is disabled");
                     return;
@@ -109,13 +121,20 @@ public class ChatReceivedEvent {
                     {
                         sendMessage("Relisting is disabled");
                     }
-
-
                     String itemName = formatItemName(item);
+                    String tag = GetItemDisplayName(item);
+                    System.out.println("tag" + tag);
 
-                    AuctionDetails auctionDetails = findAuctionDetailsByItemName(itemName);
-                    String auctioneerId = "null";
-                    String finder = "null";
+
+//                    AuctionDetails auctionDetails = findAuctionDetailsByItemName(itemName);
+//
+//                    String tag = ""; // Initialize tag variable
+//
+//// Check if auctionDetails is not null and then retrieve the tag
+//                    if (auctionDetails != null) {
+//                        tag = auctionDetails.getTag(); // Assuming getTag() method exists in AuctionDetails class
+//                        // Other existing code to retrieve auctioneerId and finder, if needed
+//                    }
 
 //                    if (auctionDetails != null) {
 //                        auctioneerId = auctionDetails.getAuctioneerId();
@@ -124,7 +143,7 @@ public class ChatReceivedEvent {
 //                    }
 
                     String isBed = PacketListener.isbBed;
-                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, itemName, isBed, auctioneerId, finder);
+                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, itemName, isBed, tag);
 
                     HashMap<String, String> purchasedItem = new HashMap<>();
                     purchasedItem.put("Item Name", item);
@@ -171,14 +190,15 @@ public class ChatReceivedEvent {
                         } catch (Exception ignored) {
                             purchaser = message.split("\\[Auction] ")[1].split(" bought")[0];
                         }
-                        sendMessage("Someone bought an item!");
-                        Claimer.open();
+                        
+                        open();
 
 
                         HashMap<String, String> sold_item = new HashMap<>();
                         NumberFormat format = NumberFormat.getInstance();
                         sold_item.put("item", soldMatcher.group(2));
                         sold_item.put("price", soldMatcher.group(3));
+                        MantaFlip.cofl.sold_items.add(sold_item);
                         sendSoldEmbed(soldMatcher.group(2), Integer.parseInt(soldMatcher.group(3).replace(",", "")), purchaser);
                         
                     }
