@@ -56,19 +56,16 @@ public class WebhookSend {
 
 
 
-    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String itemName, String isBed, String tag) throws IOException {
+    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String isBed, String tag) throws IOException {
         System.out.println("Sending purchase embed");
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
         webhook.setUsername("MantaFlip");
         webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
-        String encodedItemName;
-        try {
-            encodedItemName = URLEncoder.encode(itemName, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            encodedItemName = itemName; // Fallback to original name if encoding fails
-        }
+
+        double profitPercentage = ((double) profit / price) * 100;
+        long roundedProfitPercentage = Math.round(profitPercentage);
+
 //        if (finder == null) {
 //            finder = "Unknown";
 //        }else if (auctioneerId == null) {
@@ -114,7 +111,7 @@ public class WebhookSend {
                 .addField("Bed Flip \uD83D\uDECF\uFE0F ", isBed, true)
                 .addField("Buy Price \uD83D\uDCB0 ", formatNumbers(price), true)
                 .addField("Value \uD83D\uDCB5 ", newTP, true)
-                .addField("Profit \uD83D\uDCC8 ", formattedProfit, true)
+                .addField("Profit \uD83D\uDCC8 ", formattedProfit + " || " + roundedProfitPercentage + "%", true)
                 .setTimestamp(Instant.now())
 
 //                .addField("Seller", auctioneerId, false)

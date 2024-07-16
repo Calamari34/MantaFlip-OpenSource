@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 
 public class RemoteControl {
     public JDA bot;
@@ -30,12 +31,19 @@ public class RemoteControl {
             return;
         }
         System.out.println("[MantaFlip Remote Control] Enabling remote control bot");
+
         JDABuilder jda = JDABuilder.createDefault(token);
         MantaFlip mantaFlip = new MantaFlip();
         jda.addEventListeners(new ReadyListener(), new CommandListener(mantaFlip));
         jda.setActivity(Activity.watching("your coins"));
         jda.setStatus(OnlineStatus.ONLINE);
-        bot = jda.build();
+        try {
+            bot = jda.build();
+        } catch (InvalidTokenException e) {
+            System.err.println("[MantaFlip Remote Control] Failed to login: Invalid Bot Token");
+            // Handle the exception here (e.g., disable remote control features)
+            return;
+        }
 
         bot.updateCommands().addCommands(
                 Commands.slash("profit", "Analysis of profit in a set session").setGuildOnly(true),

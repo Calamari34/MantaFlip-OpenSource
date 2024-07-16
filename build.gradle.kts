@@ -110,14 +110,14 @@ tasks.withType(JavaCompile::class) {
 
 tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     archiveBaseName.set(modid)
-    manifest.attributes.run {
-        this["FMLCorePluginContainsFMLMod"] = "true"
-        this["ForceLoadAsMod"] = "true"
-
-        // If you don't want mixins, remove these lines
-//        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
-//        this["MixinConfigs"] = "mixins.$modid.json"
-    }
+//    manifest.attributes.run {
+//        this["FMLCorePluginContainsFMLMod"] = "true"
+//        this["ForceLoadAsMod"] = "true"
+//
+////         If you don't want mixins, remove these lines
+////        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
+////        this["MixinConfigs"] = "mixins.$modid.json"
+//    }
 }
 
 tasks.processResources {
@@ -146,9 +146,11 @@ tasks.jar {
 
     manifest.attributes += mapOf(
         "ModSide" to "CLIENT",
+        "FMLCorePlugin" to "com.github.calamari34.mantaflipbeta.mixin.MixinLoader",
         "TweakOrder" to 0,
         "ForceLoadAsMod" to true,
-        "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker"
+        "TweakClass" to "cc.polyfrost.oneconfig.loader.stage0.LaunchWrapperTweaker",
+        "MixinConfigs" to "mixins.$modid.json"
     )
 }
 

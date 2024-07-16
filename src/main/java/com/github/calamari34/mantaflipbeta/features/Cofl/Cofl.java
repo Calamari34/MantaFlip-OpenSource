@@ -40,25 +40,27 @@ public class Cofl {
     private final Pattern pattern = Pattern.compile("type[\":]*flip");
 
         public void handleMessage(String str) {
+
         try {
             if (!MantaFlip.shouldRun || PacketListener.relisting || !str.startsWith("Received:")) {
                 return;
             }
+
             if (pattern.matcher(str).find()) {
                 String[] split = str.split("Received: ");
-                JsonObject received = JsonParser.parseString(split[1]).getAsJsonObject();
+                JsonObject received = new JsonParser().parse(split[1]).getAsJsonObject();
                 if (!received.get("type").getAsString().equals("flip")) return;
-                JsonObject auction = JsonParser.parseString(received.get("data").getAsString()).getAsJsonObject();
+                JsonObject auction = new JsonParser().parse(received.get("data").getAsString()).getAsJsonObject();
+
                 String itemName = auction.get("auction").getAsJsonObject().get("itemName").getAsString();
                 int startingBid = auction.get("auction").getAsJsonObject().get("startingBid").getAsInt();
-                sendMessage("Found a flip: " + itemName + " for " + startingBid);
+
                 String tag = auction.get("auction").getAsJsonObject().get("tag").getAsString();
                 int target = auction.get("target").getAsInt();
                 JsonArray messages = auction.get("messages").getAsJsonArray();
                 String onClick = messages.get(0).getAsJsonObject().get("onClick").getAsString();
                 String auctionId = onClick.substring("/viewauction ".length());
                 AuctionDetails auctionDetails = new AuctionDetails(itemName, startingBid, target, auctionId, tag);
-
                 int profit = target - startingBid;
                 MantaFlip.itemTargetPrices.put(itemName, target);
                 MantaFlip.itemDisplayName.put(itemName, tag);
@@ -70,4 +72,7 @@ public class Cofl {
             e.printStackTrace();
         }
     }
+
+
+
 }

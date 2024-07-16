@@ -121,7 +121,7 @@ public class ChatReceivedEvent {
                     {
                         sendMessage("Relisting is disabled");
                     }
-                    String itemName = formatItemName(item);
+
                     String tag = GetItemDisplayName(item);
                     System.out.println("tag" + tag);
 
@@ -143,7 +143,7 @@ public class ChatReceivedEvent {
 //                    }
 
                     String isBed = PacketListener.isbBed;
-                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, itemName, isBed, tag);
+                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, isBed, tag);
 
                     HashMap<String, String> purchasedItem = new HashMap<>();
                     purchasedItem.put("Item Name", item);
