@@ -4,6 +4,7 @@ package com.github.calamari34.mantaflipbeta;
 
 import cc.polyfrost.oneconfig.events.event.InitializationEvent;
 import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
+import com.github.calamari34.mantaflipbeta.Auth.PlayerLoginHandler;
 import com.github.calamari34.mantaflipbeta.config.AHConfig;
 import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
@@ -38,6 +39,7 @@ public class MantaFlip {
     public static List<AuctionDetails> auctionDetailsList = new ArrayList<>();
     public static boolean shouldRun = false;
     @Getter @Setter private boolean open = false;
+    public static final Map<String, String> itemID = new HashMap<>();
     public static final Map<String, Integer> itemTargetPrices = new HashMap<>();
     public static final Map<String, String> itemDisplayName = new HashMap<>();
     public static final Map<String, Integer> itemProfit = new HashMap<>();
@@ -74,6 +76,8 @@ public class MantaFlip {
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
         remoteControl = new RemoteControl();
+        MinecraftForge.EVENT_BUS.register(new PlayerLoginHandler());
+
 
     }
 
@@ -126,6 +130,9 @@ public class MantaFlip {
 
     public static synchronized int getItemProfit(String itemName) {
         return itemProfit.getOrDefault(itemName, 0);
+    }
+    public static synchronized String getItemID(String itemName) {
+        return itemID.getOrDefault(itemName, itemName);
     }
 
 }

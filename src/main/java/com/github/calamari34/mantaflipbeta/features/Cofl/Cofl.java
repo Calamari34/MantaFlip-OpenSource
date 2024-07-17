@@ -65,6 +65,7 @@ public class Cofl {
                 MantaFlip.itemTargetPrices.put(itemName, target);
                 MantaFlip.itemDisplayName.put(itemName, tag);
                 MantaFlip.itemProfit.put(itemName, profit);
+                MantaFlip.itemID.put(itemName, auctionId);
                 auctionDetailsList.add(auctionDetails);
                 auctionDetails.sendServerMessage();
             }

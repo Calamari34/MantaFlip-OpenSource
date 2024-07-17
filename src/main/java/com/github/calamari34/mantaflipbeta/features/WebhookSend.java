@@ -22,6 +22,7 @@ import java.util.Random;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.GetItemDisplayName;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.getItemProfit;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class WebhookSend {
 
@@ -104,8 +105,11 @@ public class WebhookSend {
             isBed = isBed.substring(0, 1).toUpperCase() + isBed.substring(1);
         }
 
+        String id = MantaFlip.itemID.get(item);
+        sendMessage(String.valueOf(id));
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("**Flip Purchased**")
+                .setUrl("https://sky.coflnet.com/auction/" + id)
                 .addField("Item Name \uD83C\uDFF7\uFE0F ", item, true)
                 .addField("Buy Speed ⏱\uFE0F ", String.valueOf(elapsedTime) + "ms", true)
                 .addField("Bed Flip \uD83D\uDECF\uFE0F ", isBed, true)
@@ -135,6 +139,23 @@ public class WebhookSend {
                 .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
                 .setTimestamp(Instant.now())
                 .setColor(new Color(0xC31E42));
+        webhook.addEmbed(embed);
+        webhook.execute();
+
+
+    }
+
+    public static void sendStartEmbed(String user, String date) throws IOException {
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("**Logged in ✅ **")
+                .setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png")
+                .setDescription("Successfully logged in as " + user + ". Your access will expire on " + date + ".")
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
+                .setColor(new Color(0x9E2C7D));
         webhook.addEmbed(embed);
         webhook.execute();
 
