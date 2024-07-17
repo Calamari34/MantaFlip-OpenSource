@@ -22,39 +22,45 @@ import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 @Mixin(NetHandlerPlayClient.class)
 public class MixinNetHandlerPlayClient {
+    private static boolean hasJoinedServer = false; // Step 1: Define the flag
+
 
     @Inject(method = "handleJoinGame", at = @At("RETURN"))
     public void onHandleJoinGame(S01PacketJoinGame packet, CallbackInfo ci) {
-        // Check if the player instance is available
-        if (Minecraft.getMinecraft().thePlayer != null) {
-            UUID playerUUID = Minecraft.getMinecraft().thePlayer.getUniqueID();
-            System.out.println("Player UUID: " + playerUUID);
-            try {
-                boolean isWhitelisted = FirestoreClient.isWhitelisted(playerUUID.toString());
-                String expiryDate = FirestoreClient.getExpiryDateForUUID(playerUUID.toString());
+        if (!hasJoinedServer) {
+            if (Minecraft.getMinecraft().thePlayer != null) {
+                UUID playerUUID = Minecraft.getMinecraft().thePlayer.getUniqueID();
+                System.out.println("Player UUID: " + playerUUID);
+                try {
+                    boolean isWhitelisted = FirestoreClient.isWhitelisted(playerUUID.toString());
+                    String expiryDate = FirestoreClient.getExpiryDateForUUID(playerUUID.toString());
 
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(expiryDate);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy 'at' h:mm a");
-                String formattedDate = zonedDateTime.format(formatter);
+                    ZonedDateTime zonedDateTime = ZonedDateTime.parse(expiryDate);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy 'at' h:mm a");
+                    String formattedDate = zonedDateTime.format(formatter);
 
-                if (isWhitelisted) {
-                    String playerName = resolveUsername(playerUUID.toString());
-                    sendMessage("Successfully verified as " + playerName + ". Your whitelist will expire on " + formattedDate + ".");
-                    System.out.println("UUID is whitelisted.");
-                    sendStartEmbed(playerName, formattedDate);
-                } else {
-                    System.out.println("UUID is not whitelisted.");
-                    CrashReport crashReport = new CrashReport("This is a test crash!", new RuntimeException("This is a test crash!"));
-                    Minecraft.getMinecraft().crashed(crashReport);
-                    throw new ReportedException(crashReport);
+                    if (isWhitelisted) {
+                        String playerName = resolveUsername(playerUUID.toString());
+                        sendMessage("Successfully verified as " + playerName + ". Your whitelist will expire on " + formattedDate + ".");
+                        System.out.println("UUID is whitelisted.");
+                        sendStartEmbed(playerName, formattedDate);
+                        hasJoinedServer = true;
+                    } else {
+                        System.out.println("UUID is not whitelisted.");
+                        CrashReport crashReport = new CrashReport("This is a test crash!", new RuntimeException("This is a test crash!"));
+                        Minecraft.getMinecraft().crashed(crashReport);
+                        throw new ReportedException(crashReport);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("An error occurred while checking whitelist status.");
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("An error occurred while checking whitelist status.");
+            } else {
+                System.out.println("Player instance not available.");
             }
-        } else {
-            System.out.println("Player instance not available.");
         }
+        // Check if the player instance is available
+
     }
 
 

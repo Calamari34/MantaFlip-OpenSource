@@ -125,7 +125,7 @@ public class CommandListener extends ListenerAdapter {
             Utils.sendServerMessage("/" + command);
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Command Sent");
+            embed.setTitle("\uD83D\uDE80 Command Sent");
             embed.setTimestamp(Instant.now());
             embed.setDescription("Just sent the command. `" + command + "` to the server.");
             embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
@@ -137,7 +137,7 @@ public class CommandListener extends ListenerAdapter {
             event.deferReply().queue();
             Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Disconnected from the server");
+            embed.setTitle("⚠\uFE0F Disconnected from the server");
             embed.setTimestamp(Instant.now());
             embed.setDescription("You have just disconnected your current Minecraft session.");
             embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
