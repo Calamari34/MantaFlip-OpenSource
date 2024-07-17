@@ -79,7 +79,7 @@ public class FirestoreClient {
                 }
                 in.close();
 
-                JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
+                JsonObject jsonResponse = new JsonParser().parse(response.toString()).getAsJsonObject();
                 JsonArray documents = jsonResponse.getAsJsonArray("documents");
 
                 for (JsonElement document : documents) {

@@ -106,7 +106,6 @@ public class WebhookSend {
         }
 
         String id = MantaFlip.itemID.get(item);
-        sendMessage(String.valueOf(id));
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("**Flip Purchased**")
                 .setUrl("https://sky.coflnet.com/auction/" + id)

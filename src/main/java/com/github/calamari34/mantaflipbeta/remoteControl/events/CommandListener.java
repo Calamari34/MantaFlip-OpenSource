@@ -120,13 +120,30 @@ public class CommandListener extends ListenerAdapter {
         }
 
         if (event.getName().equals("command")) {
+            event.deferReply().queue();
             String command = Objects.requireNonNull(event.getOption("command")).getAsString();
             Utils.sendServerMessage("/" + command);
-            event.reply("Command sent").queue();
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Command Sent");
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("Just sent the command. `" + command + "` to the server.");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(new Color(0x9E2C7D));
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
         if (event.getName().equals("disconnect")) {
+            event.deferReply().queue();
             Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
-            event.reply("Disconnected").queue();
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Disconnected from the server");
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("You have just disconnected your current Minecraft session.");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(new Color(0x9E2C7D));
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
     }
 
