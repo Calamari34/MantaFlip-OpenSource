@@ -61,7 +61,7 @@ public class MantaFlip {
     public static RemoteControl remoteControl;
     public static AHConfig config;
     public static ConfigHandler configHandler;
-
+    public static Boolean startup = false;
 
 
     @Mod.EventHandler
