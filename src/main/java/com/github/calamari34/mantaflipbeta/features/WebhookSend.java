@@ -57,7 +57,7 @@ public class WebhookSend {
 
 
 
-    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String isBed, String tag) throws IOException {
+    public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String bed, String tag) throws IOException {
         System.out.println("Sending purchase embed");
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
 
@@ -101,8 +101,8 @@ public class WebhookSend {
             newTP = formatNumbers(targetPrice);
         }
 
-        if (isBed != null && !isBed.isEmpty()) {
-            isBed = isBed.substring(0, 1).toUpperCase() + isBed.substring(1);
+        if (bed != null && !bed.isEmpty()) {
+            bed = bed.substring(0, 1).toUpperCase() + bed.substring(1);
         }
 
         String id = MantaFlip.itemID.get(item);
@@ -111,7 +111,7 @@ public class WebhookSend {
                 .setUrl("https://sky.coflnet.com/auction/" + id)
                 .addField("Item Name \uD83C\uDFF7\uFE0F ", item, true)
                 .addField("Buy Speed ⏱\uFE0F ", String.valueOf(elapsedTime) + "ms", true)
-                .addField("Bed Flip \uD83D\uDECF\uFE0F ", isBed, true)
+                .addField("Bed Flip \uD83D\uDECF\uFE0F ", bed, true)
                 .addField("Buy Price \uD83D\uDCB0 ", formatNumbers(price), true)
                 .addField("Value \uD83D\uDCB5 ", newTP, true)
                 .addField("Profit \uD83D\uDCC8 ", formattedProfit + " || " + roundedProfitPercentage + "%", true)

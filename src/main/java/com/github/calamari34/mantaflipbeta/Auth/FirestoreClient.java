@@ -40,7 +40,7 @@ public class FirestoreClient {
                 JsonObject expiryDateField = fields.getAsJsonObject("expiryDate");
 
                 if (uuidField != null && expiryDateField != null) {
-                    String documentUuid = uuidField.getAsJsonObject().get("stringValue").getAsString();
+                    String documentUuid = uuidField.get("stringValue").getAsString();
                     Instant expiryDate;
                     if (expiryDateField.has("timestampValue")) {
                         String expiryDateStr = expiryDateField.get("timestampValue").getAsString();
@@ -87,7 +87,7 @@ public class FirestoreClient {
                     JsonObject uuidField = fields.getAsJsonObject("uuid");
                     JsonObject expiryDateField = fields.getAsJsonObject("expiryDate");
 
-                    if (uuidField != null && uuidField.getAsJsonObject().get("stringValue").getAsString().equalsIgnoreCase(uuid)) {
+                    if (uuidField != null && uuidField.get("stringValue").getAsString().equalsIgnoreCase(uuid)) {
                         if (expiryDateField != null) {
                             if (expiryDateField.has("timestampValue")) {
                                 return expiryDateField.get("timestampValue").getAsString();

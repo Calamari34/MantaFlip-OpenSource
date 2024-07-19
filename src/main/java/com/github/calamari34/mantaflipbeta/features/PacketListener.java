@@ -24,12 +24,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.calamari34.mantaflipbeta.config.AHConfig.AUCTION_LENGTH;
-import static com.github.calamari34.mantaflipbeta.config.AHConfig.SHORTEN_NUMBERS;
+import static com.github.calamari34.mantaflipbeta.config.AHConfig.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class PacketListener {
@@ -73,10 +74,9 @@ public class PacketListener {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) return;
-
-        if (guiNeedsProcessing && pendingGuiChest != null) {
-            processGuiChest(pendingGuiChest); // Verification processing
+        // Directly proceed if the phase is END and there's a GUI chest that needs processing
+        if (event.phase == TickEvent.Phase.END && guiNeedsProcessing && pendingGuiChest != null) {
+            processGuiChest(pendingGuiChest);
             pendingGuiChest = null;
             guiNeedsProcessing = false;
         }
@@ -131,49 +131,76 @@ public class PacketListener {
     }
     private void handleBinAuctionView(GuiChest guiChest) {
         System.out.println("BIN Auction View");
-
+        AtomicInteger totalClicks = new AtomicInteger(0);
         int slot = 31;
         final boolean[] isBed = {false};
         final int flipActionDelay = 100;
         final int multipleBedClicksDelay = 50;
+        final int bedSpamDelay = 50; // Ensure this is defined appropriately
+        final int maxIterations = 100;
+        PacketListener.isbBed = "false";
+
         scheduler.scheduleAtFixedRate(() -> {
             try {
+                if (guiChest == null) {
+                    System.out.println("guiChest is null, stopping scheduled action.");
+                    scheduler.shutdown();
+                    return;
+                }
+
+                String windowTitle = getWindowTitle(guiChest);
+
+                if (!"BIN Auction View".equals(windowTitle)) {
+                    System.out.println("Current screen is not 'BIN Auction View', stopping scheduled action.");
+                    scheduler.shutdown();
+                    return;
+                }
+
                 ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
                 if (itemStack != null) {
-                    if (itemStack.getItem() == Items.gold_nugget) {
-                        isbBed = "False";
-                        // Perform action for gold nugget
+                    Item item = itemStack.getItem();
+                    if (item == Items.gold_nugget) {
                         checkAndClickSlot(guiChest, slot, Items.gold_nugget);
-                    } else if (itemStack.getItem() == Items.potato) {
-                        isbBed = "False";
+                        isbBed = "false";
+                    } else if (item == Items.potato) {
+                        isbBed = "false";
                         Minecraft.getMinecraft().displayGuiScreen(null);
-                    } else if (itemStack.getItem() == Items.bed) {
-                        isbBed = "True";
-
-
+                        scheduler.shutdown();
+                    } else if (item == Items.bed) {
+                        AtomicInteger iterationCount = new AtomicInteger(0);
                         isBed[0] = true;
-                        try {
-                            Thread.sleep(flipActionDelay);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (multipleBedClicksDelay > 0) {
-                            for (int i = 0; i < 3; i++) {
-                                clickWindowSlot(slot);
-                                try {
-                                    Thread.sleep(multipleBedClicksDelay);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                        isbBed = "true";
+                        while (item == Items.bed && !"Confirm Purchase".equals(windowTitle) && iterationCount.get() < maxIterations) {
+                            Minecraft.getMinecraft().addScheduledTask(() -> clickWindowSlot(slot));
+                            Thread.sleep(bedSpamDelay);
+                            totalClicks.incrementAndGet();
+                            iterationCount.incrementAndGet();
+
+                            itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
+                            if (itemStack != null) {
+                                item = itemStack.getItem();
+                            } else {
+                                System.out.println("itemStack is null during iteration.");
+                                break;
+                            }
+
+                            if (item == Items.potato) {
+                                Minecraft.getMinecraft().displayGuiScreen(null);
+                                scheduler.shutdown();
+                                return;
+                            }
+
+                            if (totalClicks.get() > 100) {
+                                if ("BIN Auction View".equals(windowTitle)) {
+                                    Minecraft.getMinecraft().displayGuiScreen(null);
+                                    scheduler.shutdown();
+                                    return;
                                 }
                             }
-                        } else {
-
-                            clickWindowSlot(slot);
                         }
-                    } else {
-                        isbBed = "false";
-//                        clickWindowSlot(slot);
                     }
+                } else {
+                    System.out.println("itemStack is null.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -181,6 +208,7 @@ public class PacketListener {
             }
         }, 0, 10, TimeUnit.MILLISECONDS);
     }
+
 
     private void handleConfirmPurchase(GuiChest guiChest) {
         System.out.println("Handle Confirm Purchase");
@@ -296,6 +324,13 @@ public class PacketListener {
 
     private static void clickWindowSlot(int slot) {
         Minecraft mc = Minecraft.getMinecraft();
+
+        if (mc.currentScreen == null) {
+
+
+            return; // Stop the method if the current screen is null
+        }
+
         int windowId = mc.thePlayer.openContainer.windowId;
         int mouseButton = 2; // Middle click
         int mode = 3; // Mode for middle click
@@ -565,15 +600,17 @@ public class PacketListener {
     private void startFailsafeScheduler() {
         failsafeScheduler = Executors.newSingleThreadScheduledExecutor();
         failsafeScheduler.scheduleAtFixedRate(() -> {
-            if (screenTitleNullTime != -1 && (System.currentTimeMillis() - screenTitleNullTime) > 5000) {
+            if (relisting && screenTitleNullTime != -1 && (System.currentTimeMillis() - screenTitleNullTime) > 5000) {
                 relisting = false;
                 screenTitleNullTime = -1; // Reset to avoid repeatedly setting relisting to false
                 System.out.println("screenTitle has been null for more than 5 seconds, relisting set to false.");
+
             }
             if (relisting && lastScreenTitle != null && (System.currentTimeMillis() - lastScreenTime) > 10000) {
                 relisting = false;
                 lastScreenTitle = null;
                 System.out.println("Failsafe triggered: relisting set to false due to GUI inactivity.");
+                Minecraft.getMinecraft().displayGuiScreen(null);
             }
         }, 0, 1, TimeUnit.SECONDS);
     }

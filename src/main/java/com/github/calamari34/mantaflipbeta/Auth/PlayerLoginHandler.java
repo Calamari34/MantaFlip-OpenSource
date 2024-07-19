@@ -13,12 +13,12 @@ public class PlayerLoginHandler {
         EntityPlayerMP player = (EntityPlayerMP) event.player;
         UUID playerUUID = player.getUniqueID();
         try {
-            boolean isWhitelisted = FirestoreClient.isWhitelisted(playerUUID.toString());
-            if (!isWhitelisted) {
-                System.out.println("Not whitelisted");
+            boolean mc1 = FirestoreClient.isWhitelisted(playerUUID.toString());
+            if (!mc1) {
+
                 throw new RuntimeException("Player " + player.getName() + " is not whitelisted.");
             } else {
-                System.out.println("Player whitelisted!");
+
                 throw new RuntimeException("This is a test crash!");
             }
         } catch (Exception e) {

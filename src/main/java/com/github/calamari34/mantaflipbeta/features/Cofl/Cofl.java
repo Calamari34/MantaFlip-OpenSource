@@ -2,6 +2,7 @@ package com.github.calamari34.mantaflipbeta.features.Cofl;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
+import com.github.calamari34.mantaflipbeta.features.CaptchaHandler;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import com.github.calamari34.mantaflipbeta.features.Cofl.Queue;
+import net.minecraftforge.client.event.GuiOpenEvent;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
@@ -68,6 +70,12 @@ public class Cofl {
                 MantaFlip.itemID.put(itemName, auctionId);
                 auctionDetailsList.add(auctionDetails);
                 auctionDetails.sendServerMessage();
+            } else {
+                // Assuming captcha messages are not flip type messages
+                String[] split = str.split("Received: ");
+                if (split.length > 1) {
+                    CaptchaHandler.handleCaptcha(split[1]);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

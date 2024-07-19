@@ -30,7 +30,7 @@ public class PlayerNameFetcher {
             reader.close();
 
             // Check if the response contains the error message for an invalid UUID
-            JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
+            JsonObject jsonResponse = new JsonParser().parse(response.toString()).getAsJsonObject();
             if (jsonResponse.has("slug") && "invalid_uuid".equals(jsonResponse.get("slug").getAsString())) {
                 return null; // UUID is invalid
             }

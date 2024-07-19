@@ -68,6 +68,11 @@ public class Utils {
         return String.format(format, number) + suffix;
     }
 
+    private static final String COLOR_CODE_PATTERN = "§[0-9a-fk-or]";
+    public static String removeChatColors(String input) {
+        return input.replaceAll(COLOR_CODE_PATTERN, "");
+    }
+
 
 }
 

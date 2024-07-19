@@ -59,6 +59,7 @@ sourceSets.main {
 
 repositories {
     mavenCentral()
+
     maven("https://repo.spongepowered.org/maven/")
     // If you don't want to log in with your real minecraft account, remove this line
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
@@ -70,7 +71,7 @@ val shadowImpl: Configuration by configurations.creating {
 }
 
 dependencies {
-
+    compileOnly("com.yworks:yguard:4.1.0")
     compileOnly("cc.polyfrost:oneconfig-1.8.9-forge:0.2.2-alpha+")
     shadowImpl("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta+")
 
@@ -166,6 +167,36 @@ tasks.shadowJar {
 
     // If you want to include other dependencies and shadow them, you can relocate them in here
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
+}
+
+tasks.register("yguard") {
+    group = "yGuard"
+    description = "Obfuscates and shrinks the java archive."
+
+    doLast {
+        ant.withGroovyBuilder {
+            "taskdef"(
+                "name" to "yguard",
+                "classname" to "com.yworks.yguard.YGuardTask",
+                "classpath" to sourceSets["main"].compileClasspath.asPath
+            )
+
+            "yguard" {
+                "inout"(mapOf(
+                    "in" to tasks.shadowJar.get().archiveFile.get().asFile,
+                    "out" to file("${buildDir}/libs/${modid}-${version}-obfuscated.jar")
+                ))
+
+                "rename" {
+                    "property"(mapOf("name" to "obfuscate", "value" to "true"))
+                }
+
+                "shrink" {
+                    "property"(mapOf("name" to "shrink", "value" to "true"))
+                }
+            }
+        }
+    }
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)

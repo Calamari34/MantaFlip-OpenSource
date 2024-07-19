@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.play.server.S01PacketJoinGame;
 import net.minecraft.network.play.server.S40PacketDisconnect;
-import net.minecraft.network.play.server.S40PacketDisconnect;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ReportedException;
@@ -28,13 +27,11 @@ import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 @Mixin(NetHandlerPlayClient.class)
 public class MixinNetHandlerPlayClient {
 
-
     @Inject(method = "handleDisconnect", at = @At("RETURN"))
     private void onHandleDisconnect(S40PacketDisconnect packetIn, CallbackInfo ci) {
         // Log the disconnection reason to the console
         System.out.println("Disconnected from server: " + packetIn.getReason().getUnformattedText());
     }
-
 
     @Inject(method = "handleJoinGame", at = @At("RETURN"))
     public void onHandleJoinGame(S01PacketJoinGame packet, CallbackInfo ci) {
@@ -56,45 +53,34 @@ public class MixinNetHandlerPlayClient {
                             sendMessage("Successfully verified as " + playerName + ". Your whitelist will expire on " + formattedDate + ".");
                             System.out.println("UUID is whitelisted.");
 
-
                             sendStartEmbed(playerName, formattedDate);
-
-
                             startup = true;
                         } else {
                             System.out.println("UUID is not whitelisted.");
-                            CrashReport crashReport = new CrashReport("Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
+                            CrashReport crashReport = new CrashReport("4Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                             Minecraft.getMinecraft().crashed(crashReport);
                             throw new ReportedException(crashReport);
                         }
                     } else {
                         System.out.println("UUID not found or expiry date is missing.");
-                        CrashReport crashReport = new CrashReport("Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
+                        CrashReport crashReport = new CrashReport("3Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                         Minecraft.getMinecraft().crashed(crashReport);
                         throw new ReportedException(crashReport);
                     }
                 } catch (DateTimeParseException e) {
                     System.out.println("Failed to parse expiry date for UUID: " + playerUUID);
-
                     e.printStackTrace();
-                    CrashReport crashReport = new CrashReport("Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
+                    CrashReport crashReport = new CrashReport("2Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                     Minecraft.getMinecraft().crashed(crashReport);
                     throw new ReportedException(crashReport);
                 } catch (Exception e) {
                     System.out.println("An error occurred while checking whitelist status for UUID: " + playerUUID);
                     e.printStackTrace();
-                    CrashReport crashReport = new CrashReport("Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
-                    Minecraft.getMinecraft().crashed(crashReport);
-                    throw new ReportedException(crashReport);
+
                 }
             } else {
                 System.out.println("Player instance not available.");
             }
         }
     }
-
-
-
-
-
 }

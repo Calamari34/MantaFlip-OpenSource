@@ -48,6 +48,11 @@ public class ChatReceivedEvent {
         try {
             String message = event.message.getUnformattedText();
 
+            if (message.startsWith("You") && message.contains("don't have") && message.contains("afford this bid")) {
+                Minecraft.getMinecraft().displayGuiScreen(null);
+                return;
+            }
+
             if (message.contains("Putting coins in escrow")) {
 
                 escrowTime = System.currentTimeMillis();
@@ -106,7 +111,7 @@ public class ChatReceivedEvent {
 
                         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
                         executorService.schedule(() -> {
-                            if (targetPrice != 0) {
+                            if (profit > 0) {
 
                                 System.out.println("Relisting auction!");
                                 PacketListener.relistAuction(item, targetPrice, price);
@@ -142,8 +147,8 @@ public class ChatReceivedEvent {
 //                        System.out.println("AuctioneerId: " + auctioneerId + " Finder: " + finder);
 //                    }
 
-                    String isBed = PacketListener.isbBed;
-                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, isBed, tag);
+                    String bed = PacketListener.isbBed;
+                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, bed, tag);
 
                     HashMap<String, String> purchasedItem = new HashMap<>();
                     purchasedItem.put("Item Name", item);
