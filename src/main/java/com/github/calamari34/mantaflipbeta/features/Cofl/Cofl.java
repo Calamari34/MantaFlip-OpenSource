@@ -60,6 +60,7 @@ public class Cofl {
                 String tag = auction.get("auction").getAsJsonObject().get("tag").getAsString();
                 int target = auction.get("target").getAsInt();
                 JsonArray messages = auction.get("messages").getAsJsonArray();
+
                 String onClick = messages.get(0).getAsJsonObject().get("onClick").getAsString();
                 String auctionId = onClick.substring("/viewauction ".length());
                 AuctionDetails auctionDetails = new AuctionDetails(itemName, startingBid, target, auctionId, tag);
@@ -69,7 +70,9 @@ public class Cofl {
                 MantaFlip.itemProfit.put(itemName, profit);
                 MantaFlip.itemID.put(itemName, auctionId);
                 auctionDetailsList.add(auctionDetails);
-                auctionDetails.sendServerMessage();
+//                auctionDetails.sendServerMessage();
+                getQueue().add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
+                getQueue().scheduleClear();
             } else {
                 // Assuming captcha messages are not flip type messages
                 String[] split = str.split("Received: ");

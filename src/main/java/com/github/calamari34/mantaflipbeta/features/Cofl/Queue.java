@@ -57,7 +57,7 @@ public class Queue {
                 this.queue.clear();
                 this.setRunning(false);
                 this.clearTaskRunning = false;
-                sendMessage("Cleared queue.");
+
             }).start();
         }
     }

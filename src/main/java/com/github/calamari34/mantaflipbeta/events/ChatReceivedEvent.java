@@ -25,8 +25,7 @@ import java.util.regex.Pattern;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.features.PacketListener.escrowTime;
-import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendLimitEmbed;
-import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendSoldEmbed;
+import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
 public class ChatReceivedEvent {
@@ -62,6 +61,10 @@ public class ChatReceivedEvent {
 
             if (message.contains("Reached the active auctions limit!")) {
                 sendLimitEmbed();
+            }
+
+            if (message.contains("You already have an item in the auction slot!")) {
+                sendErrorEmbed();
             }
 
 

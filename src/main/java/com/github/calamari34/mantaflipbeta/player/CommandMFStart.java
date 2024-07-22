@@ -33,7 +33,7 @@ public class CommandMFStart extends CommandBase {
         System.out.println("Command /mf executed with args: " + Arrays.toString(args));
         if (args.length > 0) {
             if (args[0].equalsIgnoreCase("start")) {
-                MantaFlip.shouldRun = true;
+                MantaFlip.shouldRun = false;
                 sendMessage("Starting macro");
 
                 startMFProcess(sender, new GuiOpenEvent(null));
@@ -60,10 +60,7 @@ public class CommandMFStart extends CommandBase {
 
     private void startMFProcess(ICommandSender sender, GuiOpenEvent event) {
         executorService.schedule(() -> {
-            if (MantaFlip.shouldRun) {
-
-
-                sendMessage("Warping to your island");
+            sendMessage("Warping to your island");
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
 
                 try {
@@ -74,11 +71,11 @@ public class CommandMFStart extends CommandBase {
                 }
 
                 sendMessage("Claiming sold auctions");
-                MantaFlip.shouldRun = false;
+
 
 
                 PacketListener.claimAuctions((GuiChest) event.gui);
-            }
+
         }, 2, TimeUnit.SECONDS);
 
         // Start a new thread that checks the screen status every second

@@ -1,5 +1,6 @@
 package com.github.calamari34.mantaflipbeta.features.Cofl;
 
+import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.utils.Utils;
 import lombok.Getter;
 
@@ -27,7 +28,10 @@ public class QueueItem {
     }
 
     public void openAuction() {
-        sendMessage("Executing: " + command);
+
         Utils.sendServerMessage("/viewauction " + command);
+
+
+
     }
 }

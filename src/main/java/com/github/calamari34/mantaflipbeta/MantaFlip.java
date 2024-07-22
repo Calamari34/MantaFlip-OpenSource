@@ -8,27 +8,43 @@ import com.github.calamari34.mantaflipbeta.Auth.PlayerLoginHandler;
 import com.github.calamari34.mantaflipbeta.config.AHConfig;
 import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
+import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
 import com.github.calamari34.mantaflipbeta.remoteControl.RemoteControl;
 import com.github.calamari34.mantaflipbeta.utils.Clock;
 
+import com.github.calamari34.mantaflipbeta.utils.ScoreboardUtils;
 import lombok.Getter;
 import lombok.Setter;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiDisconnected;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiMultiplayer;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-
+import cc.polyfrost.oneconfig.events.EventManager;
+import cc.polyfrost.oneconfig.events.event.InitializationEvent;
+import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
 import com.github.calamari34.mantaflipbeta.events.ChatReceivedEvent;
 import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import static com.github.calamari34.mantaflipbeta.config.AHConfig.RECONNECT_DELAY;
+import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_CHECK_TIMEOUT;
+
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
 
@@ -63,16 +79,16 @@ public class MantaFlip {
     public static ConfigHandler configHandler;
     public static Boolean startup = false;
 
-
+    private int tickAmount;
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-
+        MinecraftForge.EVENT_BUS.register(this);
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
         MinecraftForge.EVENT_BUS.register(chatReceivedEvent);
         (configHandler = new ConfigHandler()).init();
-        config = new AHConfig();
+//        config = new AHConfig();
         (cofl = new Cofl()).onOpen();
-        MinecraftForge.EVENT_BUS.register(this);
+        EventManager.INSTANCE.register(this);
         MinecraftForge.EVENT_BUS.register(new PacketListener());
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
         remoteControl = new RemoteControl();
@@ -81,11 +97,12 @@ public class MantaFlip {
 
     }
 
+
+
     @Subscribe
     public void initConfig(InitializationEvent ignore) {
         config = new AHConfig();
     }
-
 
 
     public static void updateProfit(int profit) {
@@ -134,5 +151,32 @@ public class MantaFlip {
     public static synchronized String getItemID(String itemName) {
         return itemID.getOrDefault(itemName, itemName);
     }
+
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        if (mc.thePlayer == null || event.phase != TickEvent.Phase.START) return;
+        tickAmount++;
+        // Uncommented essential code to ensure they are executed
+//        if (tickAmount % 20 == 0) Utils.checkFooter();
+//        if (pageFlipper != null) pageFlipper.switchStates();
+//        if (tickAmount % (RELIST_CHECK_TIMEOUT * 72_000) == 0 && ScoreboardUtils.getSidebarLines().stream().map(ScoreboardUtils::cleanSB).anyMatch(s -> s.contains("SKYBLOCK")) && AUTO_RELIST) {
+//            relister.shouldBeRelisting = true;
+//            if (Flipper.state == FlipperState.NONE) relister.toggle();
+//        }
+//        if (claimer != null) claimer.onTick();
+//        if (relister != null) relister.onTick();
+
+        if (!cofl.queue.isEmpty() && !cofl.queue.isRunning()) {
+            cofl.queue.setRunning(true);
+            QueueItem item = cofl.queue.get();
+
+            item.openAuction();
+        }
+        if (mc.currentScreen instanceof GuiDisconnected && clock.passed()) {
+            clock.schedule(RECONNECT_DELAY * 1000L);
+            FMLClientHandler.instance().connectToServer(new GuiMultiplayer(new GuiMainMenu()), new ServerData(" ", "mc.hypixel.net", false));
+        }
+    }
+
 
 }

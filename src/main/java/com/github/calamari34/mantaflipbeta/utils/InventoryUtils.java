@@ -29,6 +29,9 @@ public class InventoryUtils {
         }
         return null;
     }
+    public static boolean inventoryNameStartsWith(String startsWithString) {
+        return getInventoryName() != null && getInventoryName().startsWith(startsWithString);
+    }
 
     public static boolean inventoryNameContains(String startsWithString) {
         return getInventoryName() != null && getInventoryName().contains(startsWithString);
