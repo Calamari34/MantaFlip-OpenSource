@@ -24,16 +24,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
+import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_TIMEOUT;
 import static com.github.calamari34.mantaflipbeta.features.PacketListener.escrowTime;
+
 import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
 public class ChatReceivedEvent {
+    public static final ArrayList<PacketListener> selling_queue = new ArrayList<>();
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
     public final ArrayList<HashMap<String, String>> sold_items = new ArrayList<>();
     public final ArrayList<HashMap<String, String>> bought_items = new ArrayList<>();
     public static boolean shouldRun = false;
-
+    public static boolean ah_full = false;
 
 
     private long elapsedTime = 0;
@@ -60,6 +63,7 @@ public class ChatReceivedEvent {
             }
 
             if (message.contains("Reached the active auctions limit!")) {
+                ah_full = true;
                 sendLimitEmbed();
             }
 
@@ -117,7 +121,21 @@ public class ChatReceivedEvent {
                             if (profit > 0) {
 
                                 System.out.println("Relisting auction!");
-                                PacketListener.relistAuction(item, targetPrice, price);
+                                try {
+                                    Thread.sleep(RELIST_TIMEOUT);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                if (ah_full) {
+                                    sendMessage("Auction house is full, not relisting item: " + item);
+                                    return;
+                                }
+
+                                try {
+                                    PacketListener.relistAuction(item, targetPrice, price);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
 
                             } else {
                                 sendMessage("Item worth is 0. Not relisting item: " + item);

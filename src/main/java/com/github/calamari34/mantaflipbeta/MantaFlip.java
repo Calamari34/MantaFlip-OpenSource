@@ -7,6 +7,7 @@ import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
 import com.github.calamari34.mantaflipbeta.Auth.PlayerLoginHandler;
 import com.github.calamari34.mantaflipbeta.config.AHConfig;
 import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
+import com.github.calamari34.mantaflipbeta.events.GuiEventHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
 import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
@@ -34,6 +35,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import cc.polyfrost.oneconfig.events.EventManager;
 import cc.polyfrost.oneconfig.events.event.InitializationEvent;
 import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.*;
 import java.util.List;
@@ -42,15 +44,15 @@ import com.github.calamari34.mantaflipbeta.events.ChatReceivedEvent;
 import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import static com.github.calamari34.mantaflipbeta.config.AHConfig.RECONNECT_DELAY;
-import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_CHECK_TIMEOUT;
+import static com.github.calamari34.mantaflipbeta.config.AHConfig.*;
+import static com.github.calamari34.mantaflipbeta.features.PacketListener.relisting;
 
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
 
 
-    public static Boolean ToggleClaim = true;
-    public static Boolean ToggleRelist = true;
+    public static Boolean ToggleClaim = AUTO_CLAIM;
+    public static Boolean ToggleRelist = AUTO_RELIST;
     private final Pattern AUCTION_SOLD_PATTERN = Pattern.compile("^(.*?) bought (.*?) for ([\\d,]+) coins CLICK$");
     public static List<AuctionDetails> auctionDetailsList = new ArrayList<>();
     public static boolean shouldRun = false;
@@ -78,10 +80,14 @@ public class MantaFlip {
     public static AHConfig config;
     public static ConfigHandler configHandler;
     public static Boolean startup = false;
-
     private int tickAmount;
+
+
+
+
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+        MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
         MinecraftForge.EVENT_BUS.register(this);
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
         MinecraftForge.EVENT_BUS.register(chatReceivedEvent);
@@ -160,8 +166,13 @@ public class MantaFlip {
 //        if (tickAmount % 20 == 0) Utils.checkFooter();
 //        if (pageFlipper != null) pageFlipper.switchStates();
 //        if (tickAmount % (RELIST_CHECK_TIMEOUT * 72_000) == 0 && ScoreboardUtils.getSidebarLines().stream().map(ScoreboardUtils::cleanSB).anyMatch(s -> s.contains("SKYBLOCK")) && AUTO_RELIST) {
-//            relister.shouldBeRelisting = true;
-//            if (Flipper.state == FlipperState.NONE) relister.toggle();
+//            PacketListener.shouldBeRelisting = true;
+//            if (relisting = false)
+//            {
+//                relister.toggle();
+//            }
+//
+//
 //        }
 //        if (claimer != null) claimer.onTick();
 //        if (relister != null) relister.onTick();

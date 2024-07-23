@@ -30,11 +30,14 @@ public class AHConfig extends Config {
     @Number(name = "Relist check timeout (hours)", min = 0.5f, max = 2f, category = "Auction House", subcategory = "Flipper", description = "Delay between checking if an item is expired and relisting it (hours)")
     public static float RELIST_CHECK_TIMEOUT = 1f;
 
+    @Switch(name = "Bed Spam", category = "Auction House", subcategory = "Sniper", description = "Spams beds")
+    public static boolean BED_SPAM = true;
+
     @Slider(name = "Bed Spam Delay (ms)", min = 50, max = 500, step = 50, category = "Auction House", subcategory = "Sniper", description = "Delay between each bed spam (milliseconds)")
     public static int BED_SPAM_DELAY = 100;
 
     @Dropdown(name = "Auction Listing Length", options = {"1 Hour", "6 Hours", "12 Hours", "24 Hours", "2 Days"}, category = "Auction House", subcategory = "Flipper", description = "Length of the auction listing")
-    public static int AUCTION_LENGTH = 2;
+    public static int AUCTION_LENGTH = 5;
 
     @Checkbox(name = "Shorten Numbers when listing", category = "Auction House", subcategory = "Flipper", description = "Shorten numbers when listing items")
     public static boolean SHORTEN_NUMBERS = false;

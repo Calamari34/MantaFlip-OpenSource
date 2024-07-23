@@ -52,7 +52,7 @@ public class RemoteControl {
                         .addOptions(new OptionData(OptionType.STRING, "type", "The type of feature to turn on").addChoice("Auto Claimer", "claimer").addChoice("COFL Macro", "macro").addChoice("Auto Relister", "relister")),
                 Commands.slash("command", "Runs a command on client side").setGuildOnly(true).addOptions(new OptionData(OptionType.STRING, "command", "The command to run", true)),
                 Commands.slash("disconnect", "Disconnect from server").setGuildOnly(true),
-                Commands.slash("disable", "Enable a feature of the mod").setGuildOnly(true)
+                Commands.slash("disable", "Disable a feature of the mod").setGuildOnly(true)
                         .addOptions(new OptionData(OptionType.STRING, "type", "The type of feature to turn off").addChoice("Auto Claimer", "claimer").addChoice("COFL Macro", "macro").addChoice("Auto Relister", "relister"))
 
 
