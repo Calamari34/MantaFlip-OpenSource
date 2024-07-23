@@ -18,14 +18,14 @@ public class GuiEventHandler {
     @SubscribeEvent
     public void onGuiOpen(GuiOpenEvent event) {
         if (event.gui instanceof GuiContainer) {
-            sendMessage("Gui opened");
+
             GuiContainer guiContainer = (GuiContainer) event.gui;
             String windowName = getInventoryName(guiContainer);
 
             if ("BIN Auction View".equals(windowName)) {
                 sendMessage("BIN Auction View opened");
             } else if ("Confirm Purchase".equals(windowName)) {
-                sendMessage("BIN Auction View opened");
+                sendMessage("Confirm Purchase opened");
             }
         }
     }
