@@ -3,6 +3,7 @@ package com.github.calamari34.mantaflipbeta.utils;
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
@@ -18,17 +19,19 @@ public class InventoryUtils {
      * @param slot the slot index
      * @return the ItemStack in the specified slot, or null if the slot is empty
      */
-    public static ItemStack getStackInOpenContainerSlot(int slot) {
-        Minecraft mc = Minecraft.getMinecraft();
-        Container openContainer = mc.thePlayer.openContainer;
-        if (openContainer != null && slot >= 0 && slot < openContainer.inventorySlots.size()) {
-            Slot containerSlot = openContainer.getSlot(slot);
+    public static ItemStack getStackInOpenContainerSlot(GuiContainer guiContainer, int slot) {
+        Container container = guiContainer.inventorySlots;
+        if (container != null && slot >= 0 && slot < container.inventorySlots.size()) {
+            Slot containerSlot = container.getSlot(slot);
             if (containerSlot != null && containerSlot.getHasStack()) {
                 return containerSlot.getStack();
             }
         }
         return null;
     }
+
+   
+
     public static boolean inventoryNameStartsWith(String startsWithString) {
         return getInventoryName() != null && getInventoryName().startsWith(startsWithString);
     }

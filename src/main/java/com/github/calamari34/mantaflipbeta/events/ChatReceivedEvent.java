@@ -51,7 +51,8 @@ public class ChatReceivedEvent {
             String message = event.message.getUnformattedText();
 
             if (message.startsWith("You") && message.contains("don't have") && message.contains("afford this bid")) {
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                MantaFlip.mc.thePlayer.closeScreen();
+
                 return;
             }
 
@@ -235,7 +236,8 @@ public class ChatReceivedEvent {
             }
 
             if (message.contains("You didn't participate")) {
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                MantaFlip.mc.thePlayer.closeScreen();
+
                 System.out.println("Chat message: " + message);
             }
         } catch (Exception e) {

@@ -1,46 +1,41 @@
 package com.github.calamari34.mantaflipbeta.features;
 import com.github.calamari34.mantaflipbeta.MantaFlip;
-import com.github.calamari34.mantaflipbeta.config.AHConfig.*;
-import com.github.calamari34.mantaflipbeta.events.PacketReceivedEvent;
+import com.github.calamari34.mantaflipbeta.events.GuiEventHandler;
 import com.github.calamari34.mantaflipbeta.utils.Clock;
 import com.github.calamari34.mantaflipbeta.utils.InventoryUtils;
 import com.github.calamari34.mantaflipbeta.utils.ReflectionUtils;
 import com.github.calamari34.mantaflipbeta.utils.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiEditSign;
-import net.minecraft.init.Blocks;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.init.Items;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C0EPacketClickWindow;
 import net.minecraft.network.play.client.C12PacketUpdateSign;
-import net.minecraft.network.play.server.S2DPacketOpenWindow;
-import net.minecraft.network.play.server.S2FPacketSetSlot;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.Sys;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.calamari34.mantaflipbeta.MantaFlip.mc;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.*;
-import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.clickWindow2;
-import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getInventoryName;
+import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getStackInOpenContainerSlot;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class PacketListener {
@@ -369,7 +364,8 @@ public class PacketListener {
 //        }, 0, 10, TimeUnit.MILLISECONDS);
 //    }
 
-    private void handleBinAuctionView(GuiChest guiChest) {
+    public static void handleBinAuctionView(GuiContainer guiContainer) {
+        auctionHouseOpenTime = System.currentTimeMillis();
         sendMessage("BIN Auction View started");
         AtomicInteger totalClicks = new AtomicInteger(0);
         int slot = 31;
@@ -378,58 +374,67 @@ public class PacketListener {
         final int maxIterations = 100;
         PacketListener.isbBed = "false";
 
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (guiChest == null || Minecraft.getMinecraft().thePlayer == null) {
-                    sendMessage("GuiChest or thePlayer is null, shutting down scheduler.");
-                    scheduler.shutdown();
-                    return;
-                }
+        ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(guiContainer, slot);
+        if (itemStack == null || itemStack.getItem() == null) {
+            sendMessage("Error: Item stack is null or does not contain an item in slot " + slot);
+            return;
+        }
 
-                synchronized (this) {
-                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-                    if (itemStack != null) {
-                        Item item = itemStack.getItem();
-                        sendMessage("Item in slot " + slot + ": " + item.getUnlocalizedName());
-                        if (item == Items.gold_nugget) {
-                            sendMessage("Gold nugget found: clicking slot " + slot);
-                            checkAndClickSlot(guiChest, slot, Items.gold_nugget);
-                            isbBed = "false";
-                            return; // Add return to stop further processing
-                        } else if (item == Items.potato) {
-                            sendMessage("Potato found: closing GUI");
-                            isbBed = "false";
-                            Minecraft.getMinecraft().displayGuiScreen(null);
-                            scheduler.shutdown();
-                            return;
-                        } else if (item == Items.bed) {
-                            sendMessage("Bed found: closing GUI due to risky item");
-                            Minecraft.getMinecraft().displayGuiScreen(null);
-                            scheduler.shutdown();
-                            return;
-                        } else if (item == Items.feather) {
-                            sendMessage("Feather found: restarting scheduler");
-                            scheduler.shutdown();
-                            resetScheduler(); // Reset and restart the scheduler
-                            handleBinAuctionView(guiChest); // Call the method again to restart the process
-                            return;
+        sendMessage("Item in slot " + slot + ": " + itemStack.getItem());
 
-                        }
-                        else {
-                            scheduler.shutdown();
-                            return;
-                        }
 
-                    } else {
-                        sendMessage("Item stack is null, slot: " + slot);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                sendMessage("Exception in handleBinAuctionView: " + e.getMessage());
-                scheduler.shutdown();
-            }
-        }, 0, 10, TimeUnit.MILLISECONDS);
+//                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
+//                sendMessage("Item in slot " + slot + ": " + itemStack.getItem().getUnlocalizedName());
+//                    if (itemStack != null) {
+//                        Item item = itemStack.getItem();
+//                        sendMessage("Item in slot " + slot + ": " + item.getUnlocalizedName());
+//                        if (item == Items.gold_nugget) {
+//                            sendMessage("Gold nugget found: clicking slot " + slot);
+//                            checkAndClickSlot(guiContainer, slot, Items.gold_nugget);
+//                            isbBed = "false";
+//                            return; // Add return to stop further processing
+//                        } else if (item == Items.poisonous_potato) {
+//                            sendMessage("Poisonous Potato found: closing GUI");
+//                            isbBed = "false";
+//                            MantaFlip.mc.thePlayer.closeScreen();
+//
+//                            scheduler.shutdown();
+//                            return;
+//                        }
+//
+//                        else if (item == Items.potato) {
+//                            sendMessage("Potato found: closing GUI");
+//                            isbBed = "false";
+//                            MantaFlip.mc.thePlayer.closeScreen();
+//
+//                            scheduler.shutdown();
+//                            return;
+//                        } else if (item == Items.bed) {
+//                            sendMessage("Bed found: closing GUI due to risky item");
+//                            MantaFlip.mc.thePlayer.closeScreen();
+//
+//                            scheduler.shutdown();
+//                            return;
+//                        } else if (item == Items.feather) {
+//                            sendMessage("Feather found: restarting scheduler");
+//                            MantaFlip.mc.thePlayer.closeScreen();
+//
+//                            scheduler.shutdown();
+//
+//                            return;
+//
+//                        }
+//                        else {
+//                            MantaFlip.mc.thePlayer.closeScreen();
+//                            scheduler.shutdown();
+//                            return;
+//                        }
+//
+//                    } else {
+//                        sendMessage("Item stack is null, slot: " + slot);
+//                    }
+
+
     }
 
 
@@ -437,36 +442,42 @@ public class PacketListener {
 
 
 
-    private static void handleConfirmPurchase() {
-        sendMessage("Handling Confirm Purchase");
-        final int slot = 11;
-        final boolean[] itemClicked = {false};
-
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (!itemClicked[0]) {
-                    // Get the current window title
-
-                    String windowTitle = getInventoryName();
-
-                    // Get the item stack in the specified slot
-                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-
-                    // Check if the window title is "Confirm Purchase" or the item is the target item
-                    if ("Confirm Purchase".equals(windowTitle) || (itemStack != null && itemStack.getItem() == Item.getItemById(159))) {
-                        sendMessage("Clicking slot " + slot);
-                        clickWindowSlot(slot);
-                        Minecraft.getMinecraft().displayGuiScreen(null);
-                        itemClicked[0] = true;
-                        scheduler.shutdown();
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                scheduler.shutdown();
-            }
-        }, 0, 10, TimeUnit.MILLISECONDS);
-    }
+//    public static void handleConfirmPurchase(GuiContainer guiContainer) {
+//        System.out.println("Handle Confirm Purchase");
+//
+//        int slot = 11;
+//        final boolean[] itemClicked = {false};
+//        sendMessage("window clicked");
+//        clickWindowSlot(11);
+//
+//            try {
+//                if (!itemClicked[0]) {
+//                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
+//                    if (itemStack != null) {
+//                        Item item = Item.getItemById(159);
+//                        if (itemStack.getItem() == item) {
+//                            clickWindowSlot(11);
+//                            for (int i = 1; i < 11; i++) {
+//                                if (!BED_SPAM) i = 11;
+//                                Thread.sleep(30);
+//                                if (GuiEventHandler.getInventoryName(guiContainer) != null) {
+//                                    clickWindowSlot(11);
+//                                } else {
+//                                    i = 11;
+//                                }
+//                            }
+//                            Minecraft.getMinecraft().displayGuiScreen(null);
+//                            itemClicked[0] = true;
+//
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                scheduler.shutdown();
+//            }
+//
+//    }
 
     public static void claimAuction(String item) {
         relisting = true;
@@ -539,9 +550,9 @@ public class PacketListener {
         return -1;
     }
 
-    private static boolean isItemInSlot(GuiChest guiChest, int slot, Item item) {
-        if (guiChest.inventorySlots instanceof ContainerChest) {
-            ContainerChest chest = (ContainerChest) guiChest.inventorySlots;
+    private static boolean isItemInSlot(GuiContainer guiContainer, int slot, Item item) {
+        if (guiContainer.inventorySlots instanceof ContainerChest) {
+            ContainerChest chest = (ContainerChest) guiContainer.inventorySlots;
             IInventory lowerChestInventory = chest.getLowerChestInventory();
             ItemStack itemStack = lowerChestInventory.getStackInSlot(slot);
             return itemStack != null && itemStack.getItem() == item;
@@ -549,16 +560,16 @@ public class PacketListener {
         return false;
     }
 
-    private static void checkAndClickSlot(GuiChest guiChest, int slot, Item item) {
-        if (isItemInSlot(guiChest, slot, item) && !slotClicked) {
+    public static void checkAndClickSlot(GuiContainer guiContainer, int slot, Item item) {
+        if (isItemInSlot(guiContainer, slot, item) && !slotClicked) {
             clickWindowSlot(slot);
             slotClicked = true;
-            handleConfirmPurchase();
+
             
         }
     }
 
-    private static void clickWindowSlot(int slot) {
+    public static void clickWindowSlot(int slot) {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (mc.currentScreen == null) {
@@ -614,12 +625,14 @@ public class PacketListener {
                     MantaFlip.shouldRun = true;
                 } else {
                     System.out.println("Item " + item + " not found in the open GUI");
-                    Minecraft.getMinecraft().displayGuiScreen(null);
+                    mc.thePlayer.closeScreen();
+
                     sendMessage("No items to claim");
                     MantaFlip.shouldRun = true;
                 }
             } else {
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                mc.thePlayer.closeScreen();
+
                 System.out.println("Current screen is not GuiChest, cannot find items");
                 MantaFlip.shouldRun = true;
             }
@@ -702,7 +715,8 @@ public class PacketListener {
                                             executorService.schedule(() -> {
                                                 clickWindowSlot(11);
                                                 executorService.schedule(() -> {
-                                                    Minecraft.getMinecraft().displayGuiScreen(null);
+                                                    MantaFlip.mc.thePlayer.closeScreen();
+
                                                     relisting = false;
 
 
@@ -848,7 +862,8 @@ public class PacketListener {
                 relisting = false;
                 lastScreenTitle = null;
                 System.out.println("Failsafe triggered: relisting set to false due to GUI inactivity.");
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                mc.thePlayer.closeScreen();
+
             }
         }, 0, 1, TimeUnit.SECONDS);
     }

@@ -64,7 +64,8 @@ public class Claimer {
 
             if (claiming == 0) {
                 toClaim.clear();
-                Minecraft.getMinecraft().displayGuiScreen(null);
+                MantaFlip.mc.thePlayer.closeScreen();
+
                 return;
 
             }
