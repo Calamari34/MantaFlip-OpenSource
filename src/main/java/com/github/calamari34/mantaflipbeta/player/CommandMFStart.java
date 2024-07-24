@@ -71,7 +71,7 @@ public class CommandMFStart extends CommandBase {
                 }
 
                 sendMessage("Claiming sold auctions");
-
+                MantaFlip.shouldRun = true;
 
 
                 PacketListener.claimAuctions((GuiChest) event.gui);
@@ -79,26 +79,6 @@ public class CommandMFStart extends CommandBase {
         }, 2, TimeUnit.SECONDS);
 
         // Start a new thread that checks the screen status every second
-        new Thread(() -> {
-            int nullScreenSeconds = 0;
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
 
-                if (Minecraft.getMinecraft().currentScreen == null) {
-                    nullScreenSeconds++;
-                } else {
-                    nullScreenSeconds = 0;
-                }
-
-                if (nullScreenSeconds >= 10) {
-                    MantaFlip.shouldRun = true;
-                }
-            }
-        }).start();
     }
 }

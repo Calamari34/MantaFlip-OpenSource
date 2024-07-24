@@ -51,27 +51,27 @@ public class GuiEventHandler {
                                 MantaFlip.mc.thePlayer.closeScreen();
                             } else if (Items.bed == stack.getItem()) {
                                 sendMessage("Bed found: closing GUI");
-                                if (BED_SPAM) {
-                                    bedStarted = true;
-                                    bedThread = new Thread(() -> {
-                                        int loopInt = 0;
-                                        try {
-                                            while (loopInt < 100) {
-                                                loopInt++;
-                                                if (chest.getLowerChestInventory().getName().contains("BIN Auction View")) {
-                                                    clickWindowSlot(31);
-
-                                                    Thread.sleep(BED_SPAM_DELAY);
-                                                }
-                                            }
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                                    bedThread.start();
-
-                                } else
-                                    MantaFlip.mc.thePlayer.closeScreen();
+//                                if (BED_SPAM) {
+//                                    bedStarted = true;
+//                                    bedThread = new Thread(() -> {
+//                                        int loopInt = 0;
+//                                        try {
+//                                            while (loopInt < 100) {
+//                                                loopInt++;
+//                                                if (chest.getLowerChestInventory().getName().contains("BIN Auction View")) {
+//                                                    clickWindowSlot(31);
+//
+//                                                    Thread.sleep(BED_SPAM_DELAY);
+//                                                }
+//                                            }
+//                                        } catch (InterruptedException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    });
+//                                    bedThread.start();
+                                MantaFlip.mc.thePlayer.closeScreen();
+//                                } else
+//                                    MantaFlip.mc.thePlayer.closeScreen();
 
                             } else if (Items.gold_nugget == stack.getItem()) {
 
@@ -108,12 +108,12 @@ public class GuiEventHandler {
                 }
             }
         }else {
-            if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
-                cofl.queue.setRunning(true);
-                QueueItem item = cofl.queue.get();
-
-                item.openAuction();
-            }
+//            if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
+//                cofl.queue.setRunning(true);
+//                QueueItem item = cofl.queue.get();
+//
+//                item.openAuction();
+//            }
         }
     }
 

@@ -38,9 +38,9 @@ public class MixinNetHandlerPlayClient {
         if (!startup) {
             if (Minecraft.getMinecraft().thePlayer != null) {
                 UUID playerUUID = Minecraft.getMinecraft().thePlayer.getUniqueID();
-                System.out.println("Player UUID: " + playerUUID);
+
                 try {
-                    boolean isWhitelisted = FirestoreClient.isWhitelisted(playerUUID.toString());
+                    boolean test = FirestoreClient.isWhitelisted(playerUUID.toString());
                     String expiryDate = FirestoreClient.getExpiryDateForUUID(playerUUID.toString());
 
                     if (!expiryDate.equals("UUID not found")) {
@@ -48,7 +48,7 @@ public class MixinNetHandlerPlayClient {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy 'at' h:mm a");
                         String formattedDate = zonedDateTime.format(formatter);
 
-                        if (isWhitelisted) {
+                        if (test) {
                             String playerName = resolveUsername(playerUUID.toString());
                             sendMessage("Successfully verified as " + playerName + ". Your whitelist will expire on " + formattedDate + ".");
                             System.out.println("UUID is whitelisted.");
@@ -56,30 +56,29 @@ public class MixinNetHandlerPlayClient {
                             sendStartEmbed(playerName, formattedDate);
                             startup = true;
                         } else {
-                            System.out.println("UUID is not whitelisted.");
+
                             CrashReport crashReport = new CrashReport("4Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                             Minecraft.getMinecraft().crashed(crashReport);
                             throw new ReportedException(crashReport);
                         }
                     } else {
-                        System.out.println("UUID not found or expiry date is missing.");
+
                         CrashReport crashReport = new CrashReport("3Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                         Minecraft.getMinecraft().crashed(crashReport);
                         throw new ReportedException(crashReport);
                     }
                 } catch (DateTimeParseException e) {
-                    System.out.println("Failed to parse expiry date for UUID: " + playerUUID);
+
                     e.printStackTrace();
                     CrashReport crashReport = new CrashReport("2Player not whitelisted", new RuntimeException("Player UUID: " + playerUUID + " is not whitelisted."));
                     Minecraft.getMinecraft().crashed(crashReport);
                     throw new ReportedException(crashReport);
                 } catch (Exception e) {
-                    System.out.println("An error occurred while checking whitelist status for UUID: " + playerUUID);
-                    e.printStackTrace();
+                   e.printStackTrace();
 
                 }
             } else {
-                System.out.println("Player instance not available.");
+
             }
         }
     }

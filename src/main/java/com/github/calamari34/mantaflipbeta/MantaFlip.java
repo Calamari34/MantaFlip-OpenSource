@@ -177,12 +177,12 @@ public class MantaFlip {
 //        if (claimer != null) claimer.onTick();
 //        if (relister != null) relister.onTick();
 
-//        if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
-//            cofl.queue.setRunning(true);
-//            QueueItem item = cofl.queue.get();
-//
-//            item.openAuction();
-//        }
+        if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
+            cofl.queue.setRunning(true);
+            QueueItem item = cofl.queue.get();
+
+            item.openAuction();
+        }
         if (mc.currentScreen instanceof GuiDisconnected && clock.passed()) {
             clock.schedule(RECONNECT_DELAY * 1000L);
             FMLClientHandler.instance().connectToServer(new GuiMultiplayer(new GuiMainMenu()), new ServerData(" ", "mc.hypixel.net", false));
