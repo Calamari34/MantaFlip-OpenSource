@@ -43,8 +43,11 @@ public class ChatReceivedEvent {
 
 
 
+
+
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent event) {
+
 
 
         try {
@@ -52,14 +55,14 @@ public class ChatReceivedEvent {
 
             if (message.startsWith("You") && message.contains("don't have") && message.contains("afford this bid")) {
                 MantaFlip.mc.thePlayer.closeScreen();
-
+                cofl.queue.setRunning(false);
                 return;
             }
 
             if (message.contains("Putting coins in escrow")) {
 
-                escrowTime = System.currentTimeMillis();
-                elapsedTime = escrowTime - PacketListener.auctionHouseOpenTime;
+                long escrowTime = System.nanoTime();
+                elapsedTime = (escrowTime - PacketListener.auctionHouseOpenTime) / 1_000_000; // Convert to milliseconds
                 System.out.println("Elapsed time: " + elapsedTime + "ms");
             }
 
@@ -237,6 +240,7 @@ public class ChatReceivedEvent {
 
             if (message.contains("You didn't participate")) {
                 MantaFlip.mc.thePlayer.closeScreen();
+                cofl.queue.setRunning(false);
 
                 System.out.println("Chat message: " + message);
             }

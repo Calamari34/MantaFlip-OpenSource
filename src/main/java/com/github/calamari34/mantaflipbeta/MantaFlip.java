@@ -4,18 +4,21 @@ package com.github.calamari34.mantaflipbeta;
 
 import cc.polyfrost.oneconfig.events.event.InitializationEvent;
 import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
-import com.github.calamari34.mantaflipbeta.Auth.PlayerLoginHandler;
+import com.github.calamari34.mantaflipbeta.Ping.PlayerLoginHandler;
 import com.github.calamari34.mantaflipbeta.config.AHConfig;
 import com.github.calamari34.mantaflipbeta.config.ConfigHandler;
 import com.github.calamari34.mantaflipbeta.events.GuiEventHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
+
+
 import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
+import com.github.calamari34.mantaflipbeta.features.Packets;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
 import com.github.calamari34.mantaflipbeta.remoteControl.RemoteControl;
+import com.github.calamari34.mantaflipbeta.utils.ClassUtils;
 import com.github.calamari34.mantaflipbeta.utils.Clock;
 
-import com.github.calamari34.mantaflipbeta.utils.ScoreboardUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,8 +36,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import cc.polyfrost.oneconfig.events.EventManager;
-import cc.polyfrost.oneconfig.events.event.InitializationEvent;
-import cc.polyfrost.oneconfig.libs.eventbus.Subscribe;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.*;
@@ -45,7 +46,9 @@ import com.github.calamari34.mantaflipbeta.features.Cofl.Cofl;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.*;
+
 import static com.github.calamari34.mantaflipbeta.features.PacketListener.relisting;
+import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getInventoryName;
 
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
@@ -81,12 +84,23 @@ public class MantaFlip {
     public static ConfigHandler configHandler;
     public static Boolean startup = false;
     private int tickAmount;
+    private final Queue queue = new Queue();
 
+    private static MantaFlip instance;
 
+    public static MantaFlip getInstance() {
+        return instance;
+    }
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        instance = this;
+    }
 
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+//        MinecraftForge.EVENT_BUS.register(new Packets());
         MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
         MinecraftForge.EVENT_BUS.register(this);
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
@@ -99,8 +113,12 @@ public class MantaFlip {
         ClientCommandHandler.instance.registerCommand(new CommandMFStart());
         remoteControl = new RemoteControl();
         MinecraftForge.EVENT_BUS.register(new PlayerLoginHandler());
+        MinecraftForge.EVENT_BUS.register(ClassUtils.getInstance());
 
 
+    }
+    public Queue getQueue() {
+        return this.queue;
     }
 
 
@@ -177,12 +195,7 @@ public class MantaFlip {
 //        if (claimer != null) claimer.onTick();
 //        if (relister != null) relister.onTick();
 
-        if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
-            cofl.queue.setRunning(true);
-            QueueItem item = cofl.queue.get();
 
-            item.openAuction();
-        }
         if (mc.currentScreen instanceof GuiDisconnected && clock.passed()) {
             clock.schedule(RECONNECT_DELAY * 1000L);
             FMLClientHandler.instance().connectToServer(new GuiMultiplayer(new GuiMainMenu()), new ServerData(" ", "mc.hypixel.net", false));

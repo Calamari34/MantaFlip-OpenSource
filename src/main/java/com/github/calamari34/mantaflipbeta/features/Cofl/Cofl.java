@@ -70,9 +70,12 @@ public class Cofl {
                 MantaFlip.itemProfit.put(itemName, profit);
                 MantaFlip.itemID.put(itemName, auctionId);
                 auctionDetailsList.add(auctionDetails);
+                sendMessage("buying");
 //                auctionDetails.sendServerMessage();
-                getQueue().add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
-                getQueue().scheduleClear();
+                MantaFlip.getInstance().getQueue().add(new QueueItem(auctionId));
+                MantaFlip.getInstance().getQueue().scheduleClear();
+//                queue.add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
+
             } else {
                 // Assuming captcha messages are not flip type messages
                 String[] split = str.split("Received: ");

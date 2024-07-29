@@ -483,6 +483,9 @@ public class PacketListener {
         relisting = true;
         System.out.println("Claiming");
 
+
+
+
         // Send the chat message to open the auction house
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/ah");
         System.out.println("Visit the ah!");
@@ -511,12 +514,12 @@ public class PacketListener {
 
                         }
                     } else {
-                        System.out.println("Current screen is not GuiChest, cannot find items");
+                        System.out.println("Current screen is not GuiChest, cannot find items1");
 
                     }
                 }, 2, TimeUnit.SECONDS);
             } else {
-                System.out.println("Current screen is not GuiChest, cannot find items");
+                System.out.println("Current screen is not GuiChest, cannot find items2");
 
             }
         }, 2, TimeUnit.SECONDS);
@@ -576,6 +579,18 @@ public class PacketListener {
 
 
             return; // Stop the method if the current screen is null
+        }
+
+        Container container = mc.thePlayer.openContainer;
+        if (container == null) {
+            System.err.println("Container is null");
+            return;
+        }
+
+        ItemStack itemStack = container.getSlot(slot).getStack();
+        if (itemStack == null) {
+            System.err.println("ItemStack is null in slot: " + slot);
+            return;
         }
 
         int windowId = mc.thePlayer.openContainer.windowId;

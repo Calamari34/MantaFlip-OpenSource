@@ -1,4 +1,4 @@
-package com.github.calamari34.mantaflipbeta.Auth;
+package com.github.calamari34.mantaflipbeta.Ping;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -58,7 +58,7 @@ public class FirestoreClient {
                 }
             }
         } else {
-            System.out.println("Failed to get whitelist data. Response code: " + responseCode);
+            System.out.println("High ping :(");
         }
         return false;
     }
@@ -99,12 +99,12 @@ public class FirestoreClient {
                     }
                 }
             } else {
-                System.out.println("Failed to get whitelist data. Response code: " + responseCode);
+                System.out.println("Wow really high ping :(");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "An error occurred while retrieving the expiry date.";
+            return "error";
         }
-        return "UUID not found or no expiry date available.";
+        return "not found";
     }
 }

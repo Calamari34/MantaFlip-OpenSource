@@ -1,146 +1,268 @@
 package com.github.calamari34.mantaflipbeta.events;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
-import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.utils.InventoryUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.github.calamari34.mantaflipbeta.MantaFlip.cofl;
-import static com.github.calamari34.mantaflipbeta.config.AHConfig.BED_SPAM;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.BED_SPAM_DELAY;
-import static com.github.calamari34.mantaflipbeta.features.PacketListener.*;
+import static com.github.calamari34.mantaflipbeta.features.PacketListener.clickWindowSlot;
 import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getInventoryName;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static org.apache.http.conn.params.ConnManagerParams.setTimeout;
 
 public class GuiEventHandler {
-    static Thread bedThread = null;
-    static boolean bedStarted = false;
-    @SubscribeEvent
-    public void onInventoryRendering(GuiScreenEvent.DrawScreenEvent.Post post) throws InterruptedException {
+    private int lastAuctionBought = 0;
+    private static boolean bedStarted = false;
+
+    public static Thread bedThread = null;
+    public static Thread nuggetThread = null;
+    private static ScheduledExecutorService scheduler;
+    public static long auctionHouseOpenTime = 0;
+
+//    @SubscribeEvent
+//    public void onGuiOpen(GuiOpenEvent event) {
+//        if (event.gui instanceof GuiChest) {
+//            GuiContainer guiContainer = (GuiContainer) event.gui;
+//            Container container = guiContainer.inventorySlots;
+//            String name = getInventoryName(guiContainer);
+//
+//            if (name != null && name.equals("BIN Auction View")) {
+//                auctionHouseOpenTime = System.nanoTime();
+//                handleBinAuctionView(guiContainer, name);
+//            } else if (name != null && name.equals("Confirm Purchase")) {
+//                handleConfirmPurchase(guiContainer, name);
+//            }
+//        }
+//    }
+
+    public static void handleBuyFinished() {
+        bedStarted = false;
+        if (bedThread != null && bedThread.isAlive()) {
+            try {
+                bedThread.interrupt();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        MantaFlip.getInstance().getQueue().setRunning(false);
+    }
+
+
+    public void onInventoryRendering(GuiScreenEvent.DrawScreenEvent.Post post) {
         if ((post.gui instanceof GuiChest)) {
             ContainerChest chest = (ContainerChest) ((GuiChest) post.gui).inventorySlots;
             if (chest != null) {
                 String name = chest.getLowerChestInventory().getName();
-                if (name.equals("BIN Auction View")) {
-                    PacketListener.auctionHouseOpenTime = System.currentTimeMillis();
+                if (name.contains("BIN Auction View")) {
                     ItemStack stack = chest.getSlot(31).getStack();
                     if (stack != null) {
                         if (Items.feather != stack.getItem()) {
                             if (Items.potato == stack.getItem()) {
-
-                                PacketListener.isbBed = "false";
-                                MantaFlip.mc.thePlayer.closeScreen();
-                            } else if (Items.poisonous_potato == stack.getItem()) {
-
-                                PacketListener.isbBed = "false";
-                                MantaFlip.mc.thePlayer.closeScreen();
-                            } else if (Items.bed == stack.getItem()) {
-                                sendMessage("Bed found: closing GUI");
-//                                if (BED_SPAM) {
-//                                    bedStarted = true;
-//                                    bedThread = new Thread(() -> {
-//                                        int loopInt = 0;
-//                                        try {
-//                                            while (loopInt < 100) {
-//                                                loopInt++;
-//                                                if (chest.getLowerChestInventory().getName().contains("BIN Auction View")) {
-//                                                    clickWindowSlot(31);
-//
-//                                                    Thread.sleep(BED_SPAM_DELAY);
-//                                                }
-//                                            }
-//                                        } catch (InterruptedException e) {
-//                                            e.printStackTrace();
+                                new Thread(() -> {
+                                    sendMessage("Someone bought the auction already, skipping...");
+//                                    if (Settings.sendFlipBuyer) {
+//                                        NBTTagCompound tagCompound = stack.getTagCompound();
+//                                        NBTTagList tagList = tagCompound.getCompoundTag("display").getTagList("Lore", 8);
+//                                        java.util.List<String> loreList = new ArrayList<>();
+//                                        for (int i = 0; i < tagList.tagCount(); i++) {
+//                                            loreList.add(tagList.getStringTagAt(i));
 //                                        }
-//                                    });
-//                                    bedThread.start();
-                                MantaFlip.mc.thePlayer.closeScreen();
-//                                } else
-//                                    MantaFlip.mc.thePlayer.closeScreen();
-
-                            } else if (Items.gold_nugget == stack.getItem()) {
-
-                                clickWindowSlot(31);
-                                PacketListener.isbBed = "false";
-                            }
-                        }
-
-                    }
-
-                } else if (name.equals("Confirm Purchase")) {
-                    final boolean[] itemClicked = {false};
-
-                    if (!itemClicked[0]) {
-                        ItemStack stack = chest.getSlot(11).getStack();
-                        if (stack != null) {
-                            Item item = Item.getItemById(159);
-                            if (stack.getItem() == item) {
-                                clickWindowSlot(11);
-                                for (int i = 1; i < 11; i++) {
-                                    if (!BED_SPAM) i = 11;
-                                    Thread.sleep(30);
-                                    if (name != null) {
-                                        clickWindowSlot(11);
-                                    } else {
-                                        i = 11;
+//                                        String buyer = null;
+//                                        for (String loreLine : loreList) {
+//                                            if (!loreLine.startsWith("Buyer: ")) continue;
+//                                            buyer = loreLine.split("Buyer: ")[1];
+//                                        }
+//                                        String itemName = loreList.get(1);
+//                                        if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips)
+//                                            itemName.replace("[()#\\/0-9]+$", "");
+//                                        Helpers.sendChatMessage(itemName + " was bought by " + buyer + ".");
+//                                    }
+//                                    handleBuyFinished();
+                                    try {
+                                        Thread.sleep(50);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
-                                }
-                                MantaFlip.mc.thePlayer.closeScreen();
-                                itemClicked[0] = true;
+                                    Minecraft.getMinecraft().thePlayer.closeScreen();
+                                }).start();
+                            } else if (Items.bed == stack.getItem() && !bedStarted) {
+                                bedStarted = true;
+                                bedThread = new Thread(() -> {
+                                    int loopInt = 0;
+                                    try {
+                                        while (loopInt < 100) {
+                                            loopInt++;
+                                            if (chest.getLowerChestInventory().getName().contains("BIN Auction View")) {
+                                                clickWindowSlot(31);
+
+                                                Thread.sleep(BED_SPAM_DELAY);
+                                            }
+                                        }
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                                bedThread.start();
+                                setTimeout(GuiEventHandler::handleBuyFinished, 750);
+                            } else if (Items.gold_nugget == stack.getItem() || Item.getItemFromBlock(Blocks.gold_block) == stack.getItem()) {
+                                clickWindowSlot(31);
+
                             }
                         }
+                    }
+                } else if (name.contains("Confirm Purchase")) {
+                    if (chest.windowId != this.lastAuctionBought) {
+                        clickWindowSlot(11);
+                        this.lastAuctionBought = chest.windowId;
                     }
                 }
             }
-        }else {
-//            if (!cofl.queue.isEmpty() && !cofl.queue.isRunning() && (!relisting)){
-//                cofl.queue.setRunning(true);
-//                QueueItem item = cofl.queue.get();
-//
-//                item.openAuction();
-//            }
         }
     }
 
+    private void handleBinAuctionView(GuiContainer guiContainer, String name) {
+
+        long purchaseAt = System.currentTimeMillis();
+        long waitTime = 15;
+
+        long currentTime = System.currentTimeMillis();
+        long ending = purchaseAt;
+
+        AtomicInteger totalClicks = new AtomicInteger(0);
+        int slot = 31;
+        final boolean[] isBed = {false};
+
+
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // Ensure this is run on the main thread
+                Minecraft.getMinecraft().addScheduledTask(() -> {
+                    try {
+                        if (!"BIN Auction View".equals(name)) {
+                            cofl.queue.setRunning(false);
+                            sendMessage("Current screen is not 'BIN Auction View', stopping scheduled action.");
+                            scheduler.shutdown();
+                            return;
+                        }
+                        PacketListener.isbBed = "false";
+
+                        ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(guiContainer, slot);
+                        if (itemStack != null) {
+                            Item item = itemStack.getItem();
+                            if (item == Items.gold_nugget) {
 
 
 
+                                clickWindowSlot(slot);
+                                scheduler.shutdown();
+                            } else if (item == Items.potato) {
+                                cofl.queue.setRunning(false);
+                                MantaFlip.mc.thePlayer.closeScreen();
 
-
-
-//    @SubscribeEvent
-//    public void onGuiOpen(GuiOpenEvent event) {
-//        if (event.gui instanceof GuiContainer) {
+                                scheduler.shutdown();
+                            } else if (item == Items.bed) {
+                                sendMessage("beds temporarily disabled");
+                                MantaFlip.mc.thePlayer.closeScreen();
+                                scheduler.shutdown();
+//                                if (currentTime < ending) {
+//                                scheduler.schedule(() -> {
+//                                    Minecraft.getMinecraft().addScheduledTask(() -> {
+//                                        try {
+//                                            for (int i = 0; i < 4; i++) {
+//                                                if (name.equals("BIN Auction View")) {
+//                                                    clickWindowSlot(slot);
+//                                                    Thread.sleep(3);
+//                                                }
+//                                            }
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    });
+//                                }, ending - currentTime - waitTime, TimeUnit.MILLISECONDS);
 //
-//            GuiContainer guiContainer = (GuiContainer) event.gui;
-//            String windowName = getInventoryName(guiContainer);
-//
-//
-//            if ("BIN Auction View".equals(windowName)) {
-//                sendMessage("BIN Auction View opened");
-////                PacketListener.handleBinAuctionView(guiContainer);
-//
-//            } else if ("Confirm Purchase".equals(windowName)) {
-////                PacketListener.handleConfirmPurchase(guiContainer);
-//                sendMessage("Confirm Purchase opened");
-//            }
-//        }
-//    }
+//                                scheduler.schedule(() -> {
+//                                    Minecraft.getMinecraft().addScheduledTask(() -> {
+//                                        try {
+//                                            if (name.equals("BIN Auction View")) {
+//                                                MantaFlip.mc.thePlayer.closeScreen();
+//                                                sendMessage("Bed timing failed and we had to abort the auction :(");
+//                                            }
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    });
+//                                }, 5000, TimeUnit.MILLISECONDS);
+//                            }
+                        }
+                    }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        scheduler.shutdown();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                scheduler.shutdown();
+            }
+        }, 0, 10, TimeUnit.MILLISECONDS);
+    }
+
+    private void handleConfirmPurchase(GuiContainer guiContainer, String name) {
+        int slot = 11;
+        final boolean[] itemClicked = {false};
+
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                Minecraft.getMinecraft().addScheduledTask(() -> {
+                    try {
+                        if (!itemClicked[0]) {
+                            ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(guiContainer, slot);
+                            if (itemStack != null) {
+                                Item item = Item.getItemById(159);
+                                if (itemStack.getItem() == item) {
+                                    clickWindowSlot(11);
+                                    cofl.queue.setRunning(false);
+                                    MantaFlip.mc.thePlayer.closeScreen();
+
+                                    itemClicked[0] = true;
+                                    scheduler.shutdown();  // Ensure the scheduler is shutdown after clicking the item
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        scheduler.shutdown();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                scheduler.shutdown();
+            }
+        }, 0, 10, TimeUnit.MILLISECONDS);
+    }
 
     public static String getInventoryName(GuiContainer guiContainer) {
         if (guiContainer instanceof GuiChest) {
@@ -150,5 +272,4 @@ public class GuiEventHandler {
         }
         return null;
     }
-
 }

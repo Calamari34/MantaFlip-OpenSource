@@ -1,4 +1,4 @@
-package com.github.calamari34.mantaflipbeta.Auth;
+package com.github.calamari34.mantaflipbeta.Ping;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

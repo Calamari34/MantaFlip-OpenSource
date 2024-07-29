@@ -59,7 +59,13 @@ public class WebhookSend {
 
     public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String bed, String tag) throws IOException {
         System.out.println("Sending purchase embed");
-        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+
+        String webhookUrl = MantaFlip.configHandler.getString("Webhook");
+        if (webhookUrl == null || webhookUrl.isEmpty()) {
+            throw new IllegalArgumentException("Webhook URL is not set in the configuration.");
+        }
+
+        DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
 
         webhook.setUsername("MantaFlip");
         webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
@@ -67,13 +73,6 @@ public class WebhookSend {
         double profitPercentage = ((double) profit / price) * 100;
         long roundedProfitPercentage = Math.round(profitPercentage);
 
-//        if (finder == null) {
-//            finder = "Unknown";
-//        }else if (auctioneerId == null) {
-//            auctioneerId = "Unknown";
-//        }
-
-//        String username = resolveUsername(auctioneerId);
         if (elapsedTime >= 1000000) {
             Random random = new Random();
             int randomNumber = 2 + random.nextInt(33);
@@ -81,23 +80,19 @@ public class WebhookSend {
             elapsedTime = Long.parseLong(String.valueOf(time2));
         }
 
-
         NumberFormat format = NumberFormat.getInstance();
-        // Declare formattedProfit before the if statement
         String formattedProfit;
         if (profit < 0) {
             profit = Math.abs(profit);
-            // Format the number
-            formattedProfit = "-" + formatNumbers(profit); // Add the minus symbol at the start again
+            formattedProfit = "-" + formatNumbers(profit);
         } else {
             formattedProfit = formatNumbers(profit);
         }
+
         String newTP;
         if (targetPrice == 0) {
             newTP = formatNumbers(price) + " because UserFinder";
-        }
-        else
-        {
+        } else {
             newTP = formatNumbers(targetPrice);
         }
 
@@ -105,27 +100,38 @@ public class WebhookSend {
             bed = bed.substring(0, 1).toUpperCase() + bed.substring(1);
         }
 
+
+
         String id = MantaFlip.itemID.get(item);
+
+
+
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("**Flip Purchased**")
                 .setUrl("https://sky.coflnet.com/auction/" + id)
                 .addField("Item Name \uD83C\uDFF7\uFE0F ", item, true)
-                .addField("Buy Speed ⏱\uFE0F ", String.valueOf(elapsedTime) + "ms", true)
+                .addField("Buy Speed ⏱\uFE0F ", elapsedTime + "ms", true)
                 .addField("Bed Flip \uD83D\uDECF\uFE0F ", bed, true)
                 .addField("Buy Price \uD83D\uDCB0 ", formatNumbers(price), true)
                 .addField("Value \uD83D\uDCB5 ", newTP, true)
                 .addField("Profit \uD83D\uDCC8 ", formattedProfit + " || " + roundedProfitPercentage + "%", true)
                 .setTimestamp(Instant.now())
-
-//                .addField("Seller", auctioneerId, false)
-//                .addField("Finder", finder, false)
                 .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
                 .setColor(new Color(0x1F73D9))
                 .setThumbnail("https://sky.coflnet.com/static/icon/" + tag);
 
         webhook.addEmbed(embed);
-        webhook.execute();
+
+        try {
+            webhook.execute();
+        } catch (IOException e) {
+            System.err.println("Error executing webhook: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
+
+
 
     public static void sendLimitEmbed() throws IOException {
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));

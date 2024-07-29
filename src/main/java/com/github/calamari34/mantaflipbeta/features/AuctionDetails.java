@@ -70,7 +70,7 @@ public class AuctionDetails {
         System.out.println("window title: " + windowTitle);
         if (windowTitle == null) {
             Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + getAuctionId());
-            sendMessage("Opening auction " + getItemName());
+            sendMessage("Opening auction details for " + getItemName());
         } else {
             sendMessage("don't open");
         }

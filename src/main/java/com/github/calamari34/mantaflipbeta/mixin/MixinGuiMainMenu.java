@@ -1,16 +1,10 @@
 package com.github.calamari34.mantaflipbeta.mixin;
 
-import com.github.calamari34.mantaflipbeta.Auth.FirestoreClient;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.util.ReportedException;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.UUID;
 
 @Mixin(GuiMainMenu.class)
 public class MixinGuiMainMenu {

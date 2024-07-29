@@ -1,13 +1,11 @@
 package com.github.calamari34.mantaflipbeta.mixin;
 
-import com.github.calamari34.mantaflipbeta.Auth.FirestoreClient;
-import com.github.calamari34.mantaflipbeta.utils.PlayerNameFetcher;
+import com.github.calamari34.mantaflipbeta.Ping.FirestoreClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.play.server.S01PacketJoinGame;
 import net.minecraft.network.play.server.S40PacketDisconnect;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ReportedException;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,7 +49,7 @@ public class MixinNetHandlerPlayClient {
                         if (test) {
                             String playerName = resolveUsername(playerUUID.toString());
                             sendMessage("Successfully verified as " + playerName + ". Your whitelist will expire on " + formattedDate + ".");
-                            System.out.println("UUID is whitelisted.");
+
 
                             sendStartEmbed(playerName, formattedDate);
                             startup = true;

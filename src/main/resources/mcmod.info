@@ -1,10 +1,10 @@
 [
   {
-    "modid": "${modid}",
+    "modid": "mantaflip",
     "name": "MantaFlip",
     "description": "Cheeky lil thing",
-    "version": "${version}",
-    "mcversion": "${mcversion}",
+    "version": "1.0.0",
+    "mcversion": "1.8.9",
     "updateUrl": "",
     "authorList": [
       "You"
