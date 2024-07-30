@@ -2,17 +2,14 @@ package com.github.calamari34.mantaflipbeta.events;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
-import com.github.calamari34.mantaflipbeta.features.Claimer;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.features.WebhookSend;
-import com.github.calamari34.mantaflipbeta.utils.DiscordWebhook;
 import com.github.calamari34.mantaflipbeta.utils.ScoreboardUtils;
 import com.github.calamari34.mantaflipbeta.utils.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.awt.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +22,6 @@ import java.util.regex.Pattern;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_TIMEOUT;
-import static com.github.calamari34.mantaflipbeta.features.PacketListener.escrowTime;
 
 import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
@@ -55,7 +51,7 @@ public class ChatReceivedEvent {
 
             if (message.startsWith("You") && message.contains("don't have") && message.contains("afford this bid")) {
                 MantaFlip.mc.thePlayer.closeScreen();
-                cofl.queue.setRunning(false);
+                cofl.customQueue.setRunning(false);
                 return;
             }
 
@@ -240,7 +236,7 @@ public class ChatReceivedEvent {
 
             if (message.contains("You didn't participate")) {
                 MantaFlip.mc.thePlayer.closeScreen();
-                cofl.queue.setRunning(false);
+                cofl.customQueue.setRunning(false);
 
                 System.out.println("Chat message: " + message);
             }

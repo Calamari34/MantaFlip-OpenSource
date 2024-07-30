@@ -6,7 +6,7 @@ import java.util.List;
 
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
-public class Queue {
+public class CustomQueue {
     private final List<QueueItem> queue = new ArrayList<>();
     private boolean running = false;
 
@@ -52,7 +52,7 @@ public class Queue {
                 this.clear();
                 this.setRunning(false);
                 this.clearTaskRunning = false;
-               sendMessage("Cleared queue.");
+
             }).start();
         }
     }

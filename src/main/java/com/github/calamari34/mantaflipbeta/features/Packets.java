@@ -53,8 +53,11 @@ public class Packets extends SimpleChannelInboundHandler<Packet> {
                 this.startTime = System.currentTimeMillis();
             }
 
-        }else if ((msg instanceof S2FPacketSetSlot)) {
-            sendMessage("Received S2FPacketSetSlot");
-        }
-    }
+        }else if(msg instanceof S02PacketChat) {
+            S02PacketChat packet = (S02PacketChat) msg;
+            if (packet.getChatComponent().getUnformattedText().replaceAll("§.", "").contains("Putting coins in escrow")) {
+                long endTime = System.currentTimeMillis();
+                sendMessage("Auction bought in " + (endTime - startTime) + " ms");
+            }
+    }   }
 }

@@ -16,7 +16,7 @@ public class QueueItem {
 
     public void openAuction() {
         MantaFlip.shouldRun = true;
-        sendMessage("Executing: " + this.command);
+
         Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + command);
     }
 

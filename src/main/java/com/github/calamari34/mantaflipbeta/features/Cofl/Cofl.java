@@ -14,15 +14,13 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-import com.github.calamari34.mantaflipbeta.features.Cofl.Queue;
-import net.minecraftforge.client.event.GuiOpenEvent;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class Cofl {
     @Getter
-    public final Queue queue = new Queue();
+    public final CustomQueue customQueue = new CustomQueue();
     private @Getter
     @Setter boolean open = false;
     public final ArrayList<HashMap<String, String>> sold_items = new ArrayList<>();
@@ -72,9 +70,15 @@ public class Cofl {
                 auctionDetailsList.add(auctionDetails);
                 sendMessage("buying");
 //                auctionDetails.sendServerMessage();
-                MantaFlip.getInstance().getQueue().add(new QueueItem(auctionId));
+                QueueItem queueItem = new QueueItem(auctionId);
+                MantaFlip.getInstance().getQueue().add(queueItem);
                 MantaFlip.getInstance().getQueue().scheduleClear();
-//                queue.add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
+                String windowTitle = MantaFlip.getWindow();
+                if (windowTitle == null ) {
+                    queueItem.openAuction();
+                }
+
+//                customQueue.add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
 
             } else {
                 // Assuming captcha messages are not flip type messages

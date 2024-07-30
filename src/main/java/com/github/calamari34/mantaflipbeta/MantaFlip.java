@@ -11,6 +11,7 @@ import com.github.calamari34.mantaflipbeta.events.GuiEventHandler;
 import com.github.calamari34.mantaflipbeta.features.AuctionDetails;
 
 
+import com.github.calamari34.mantaflipbeta.features.Cofl.CustomQueue;
 import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.features.Packets;
@@ -84,7 +85,7 @@ public class MantaFlip {
     public static ConfigHandler configHandler;
     public static Boolean startup = false;
     private int tickAmount;
-    private final Queue queue = new Queue();
+    private final CustomQueue queue = new CustomQueue();
 
     private static MantaFlip instance;
 
@@ -100,7 +101,7 @@ public class MantaFlip {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-//        MinecraftForge.EVENT_BUS.register(new Packets());
+        MinecraftForge.EVENT_BUS.register(new Packets());
         MinecraftForge.EVENT_BUS.register(new GuiEventHandler());
         MinecraftForge.EVENT_BUS.register(this);
         ChatReceivedEvent chatReceivedEvent = new ChatReceivedEvent();
@@ -117,7 +118,7 @@ public class MantaFlip {
 
 
     }
-    public Queue getQueue() {
+    public CustomQueue getQueue() {
         return this.queue;
     }
 

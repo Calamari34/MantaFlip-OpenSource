@@ -9,14 +9,12 @@ import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.concurrent.Executors;
@@ -27,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.cofl;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.BED_SPAM_DELAY;
 import static com.github.calamari34.mantaflipbeta.features.PacketListener.clickWindowSlot;
-import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getInventoryName;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
-import static org.apache.http.conn.params.ConnManagerParams.setTimeout;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.setTimeout;
+
 
 public class GuiEventHandler {
     private int lastAuctionBought = 0;
@@ -68,14 +66,16 @@ public class GuiEventHandler {
         MantaFlip.getInstance().getQueue().setRunning(false);
     }
 
-
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onInventoryRendering(GuiScreenEvent.DrawScreenEvent.Post post) {
         if ((post.gui instanceof GuiChest)) {
             ContainerChest chest = (ContainerChest) ((GuiChest) post.gui).inventorySlots;
             if (chest != null) {
                 String name = chest.getLowerChestInventory().getName();
                 if (name.contains("BIN Auction View")) {
+
                     ItemStack stack = chest.getSlot(31).getStack();
+
                     if (stack != null) {
                         if (Items.feather != stack.getItem()) {
                             if (Items.potato == stack.getItem()) {
@@ -135,6 +135,7 @@ public class GuiEventHandler {
                     if (chest.windowId != this.lastAuctionBought) {
                         clickWindowSlot(11);
                         this.lastAuctionBought = chest.windowId;
+                        MantaFlip.mc.thePlayer.closeScreen();
                     }
                 }
             }
@@ -161,7 +162,7 @@ public class GuiEventHandler {
                 Minecraft.getMinecraft().addScheduledTask(() -> {
                     try {
                         if (!"BIN Auction View".equals(name)) {
-                            cofl.queue.setRunning(false);
+                            cofl.customQueue.setRunning(false);
                             sendMessage("Current screen is not 'BIN Auction View', stopping scheduled action.");
                             scheduler.shutdown();
                             return;
@@ -178,7 +179,7 @@ public class GuiEventHandler {
                                 clickWindowSlot(slot);
                                 scheduler.shutdown();
                             } else if (item == Items.potato) {
-                                cofl.queue.setRunning(false);
+                                cofl.customQueue.setRunning(false);
                                 MantaFlip.mc.thePlayer.closeScreen();
 
                                 scheduler.shutdown();
@@ -244,7 +245,7 @@ public class GuiEventHandler {
                                 Item item = Item.getItemById(159);
                                 if (itemStack.getItem() == item) {
                                     clickWindowSlot(11);
-                                    cofl.queue.setRunning(false);
+                                    cofl.customQueue.setRunning(false);
                                     MantaFlip.mc.thePlayer.closeScreen();
 
                                     itemClicked[0] = true;
