@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_TIMEOUT;
 
+import static com.github.calamari34.mantaflipbeta.features.Packets.TimeElapsed;
 import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
@@ -169,7 +170,7 @@ public class ChatReceivedEvent {
 //                    }
 
                     String bed = PacketListener.isbBed;
-                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, bed, tag);
+                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, TimeElapsed, bed, tag);
 
                     HashMap<String, String> purchasedItem = new HashMap<>();
                     purchasedItem.put("Item Name", item);

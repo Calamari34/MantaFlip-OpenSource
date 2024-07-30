@@ -78,6 +78,7 @@ public class GuiEventHandler {
 
                     if (stack != null) {
                         if (Items.feather != stack.getItem()) {
+                            PacketListener.isbBed = "false";
                             if (Items.potato == stack.getItem()) {
                                 new Thread(() -> {
                                     sendMessage("Someone bought the auction already, skipping...");
@@ -107,6 +108,7 @@ public class GuiEventHandler {
                                     Minecraft.getMinecraft().thePlayer.closeScreen();
                                 }).start();
                             } else if (Items.bed == stack.getItem() && !bedStarted) {
+                                PacketListener.isbBed = "true";
                                 bedStarted = true;
                                 bedThread = new Thread(() -> {
                                     int loopInt = 0;

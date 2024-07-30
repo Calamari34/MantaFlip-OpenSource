@@ -29,6 +29,7 @@ import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 public class Packets extends SimpleChannelInboundHandler<Packet> {
     private long startTime;
     private ChannelPipeline pipeline;
+    public static long TimeElapsed;
 
 
     @SubscribeEvent
@@ -49,7 +50,7 @@ public class Packets extends SimpleChannelInboundHandler<Packet> {
         if ((msg instanceof S2DPacketOpenWindow)) {
             S2DPacketOpenWindow packet = (S2DPacketOpenWindow) msg;
             if (packet.getWindowTitle().getUnformattedText().equals("BIN Auction View")) {
-                sendMessage("Started timer");
+
                 this.startTime = System.currentTimeMillis();
             }
 
@@ -57,6 +58,7 @@ public class Packets extends SimpleChannelInboundHandler<Packet> {
             S02PacketChat packet = (S02PacketChat) msg;
             if (packet.getChatComponent().getUnformattedText().replaceAll("§.", "").contains("Putting coins in escrow")) {
                 long endTime = System.currentTimeMillis();
+                TimeElapsed = endTime - startTime;
                 sendMessage("Auction bought in " + (endTime - startTime) + " ms");
             }
     }   }
