@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
+import static com.github.calamari34.mantaflipbeta.features.CaptchaHandler.sendOnClickActionToChat;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumber;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
 
@@ -144,6 +145,19 @@ public class CommandListener extends ListenerAdapter {
             embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
             embed.setColor(new Color(0x9E2C7D));
             event.getHook().sendMessageEmbeds(embed.build()).queue();
+        }
+        if (event.getName().equals("solve")) {
+            event.deferReply().queue();
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Attempting to solve the Captcha");
+            embed.setTimestamp(Instant.now());
+            embed.setDescription("Testing line " + event.getOption("line").getAsString() + " for captcha solution.");
+            embed.setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png");
+            embed.setFooter("Remote Session • MantaFlip ", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6692fdea&is=6691ac6a&hm=e0b1e050dfd4a457c903bbba8605745d4dd013a78848d98a4f180608f462849c&");
+            embed.setColor(new Color(0x9E2C7D));
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            sendOnClickActionToChat(Integer.parseInt(event.getOption("line").getAsString()));
         }
     }
 

@@ -42,6 +42,9 @@ public class AHConfig extends Config {
     @Checkbox(name = "Shorten Numbers when listing", category = "Auction House", subcategory = "Flipper", description = "Shorten numbers when listing items")
     public static boolean SHORTEN_NUMBERS = false;
 
+    @Checkbox(name = "US Instance", category = "Auction House", subcategory = "Flipper", description = "Connects to the US instance of the Modsocket, choose yes if your using premium plus.")
+    public static boolean US_INSTANCE = true;
+
     @Checkbox(name = "Auto Relist", category = "Auction House", subcategory = "Flipper", description = "Automatically relist items after auctions are expired")
     public static boolean AUTO_RELIST = true;
 

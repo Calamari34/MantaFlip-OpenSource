@@ -2,6 +2,9 @@ package com.github.calamari34.mantaflipbeta.features;
 
 import com.github.calamari34.mantaflipbeta.MantaFlip;
 import com.github.calamari34.mantaflipbeta.utils.DiscordWebhook;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import org.json.JSONObject;
 
@@ -55,8 +58,6 @@ public class WebhookSend {
     }
 
 
-
-
     public static void sendPurchaseEmbed(String item, int price, int targetPrice, int profit, long elapsedTime, String bed, String tag) throws IOException {
         System.out.println("Sending purchase embed");
 
@@ -101,9 +102,7 @@ public class WebhookSend {
         }
 
 
-
         String id = MantaFlip.itemID.get(item);
-
 
 
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
@@ -130,7 +129,6 @@ public class WebhookSend {
             throw e;
         }
     }
-
 
 
     public static void sendLimitEmbed() throws IOException {
@@ -210,8 +208,6 @@ public class WebhookSend {
     }
 
 
-
-
     static void sendListedEmbed(String item, int targetPrice, int initial) throws IOException {
 
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
@@ -240,21 +236,104 @@ public class WebhookSend {
         webhook.execute();
     }
 
-    static void sendCaptchaWebhook() throws IOException {
+    public static void sendCaptchaWebhook(String captchaDataJson) throws IOException {
         DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
-
         webhook.setUsername("MantaFlip");
         webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
 
+
+        // Add line numbers before each newline
+        StringBuilder numberedCaptchaData = new StringBuilder();
+        int lineNumber = 1;
+        boolean isNewLine = true;
+
+        for (char c : captchaDataJson.toCharArray()) {
+            if (isNewLine) {
+                numberedCaptchaData.append(lineNumber).append(" ");
+                isNewLine = false;
+            }
+            if (c == '\n') {
+                numberedCaptchaData.append(c);
+                lineNumber++;
+                isNewLine = true;
+            } else {
+                numberedCaptchaData.append(c);
+            }
+        }
+
+        captchaDataJson = numberedCaptchaData.toString().replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+
+
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
-        embed.setTitle("⚠\uFE0F **Captcha Detected **")
-                .setDescription("Captcha detected, please login and solve it as the remote solver is currently unsafe to use.")
+        embed.setTitle("⚠️ **Captcha Detected**")
+                .setDescription("```" + captchaDataJson + "```")
                 .setColor(new Color(0xC31E42))
                 .setTimestamp(Instant.now())
                 .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&");
 
         webhook.addEmbed(embed);
+
+        // Log the payload
+
+
+        try {
+            webhook.execute();
+        } catch (IOException e) {
+            // Log the error message and stack trace
+            System.err.println("Error sending webhook: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendSuccessEmbed() throws IOException {
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("✅ **Captcha Success**")
+                .setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png")
+                .setDescription("Successfully solved the captcha.")
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
+                .setColor(new Color(0x1ED55F));
+        webhook.addEmbed(embed);
         webhook.execute();
+
+
+    }
+    public static void sendFailedEmbed() throws IOException {
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("❌**Captcha Failed**")
+                .setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png")
+                .setDescription("Failed the captcha, another one will come through shortly.")
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
+                .setColor(new Color(0xC31E42));
+        webhook.addEmbed(embed);
+        webhook.execute();
+
+
+    }
+    public static void sendAnotherEmbed() throws IOException {
+        DiscordWebhook webhook = new DiscordWebhook(MantaFlip.configHandler.getString("Webhook"));
+        webhook.setUsername("MantaFlip");
+        webhook.setAvatarUrl("https://cdn.discordapp.com/attachments/1242759092645138474/1262282832127070298/MantaFlip.jpg?ex=669607ff&is=6694b67f&hm=65e3b7c13144b0ac7f2ab4f3b23ee9beef4cd8bd88a24a1bf4998a1e2422b3d1&");
+        DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
+        embed.setTitle("✅ **Captcha Success**")
+                .setThumbnail("https://minotar.net/helm/" + Minecraft.getMinecraft().getSession().getUsername() + "/600.png")
+                .setDescription("You solved the captcha, but you failed too many previously. Another one will come through shortly.")
+                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setTimestamp(Instant.now())
+                .setColor(new Color(0xFFA500));
+        webhook.addEmbed(embed);
+        webhook.execute();
+
 
     }
 }

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
 import static com.github.calamari34.mantaflipbeta.config.AHConfig.RELIST_TIMEOUT;
 
+import static com.github.calamari34.mantaflipbeta.features.Packets.TimeElapsed;
 import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 import static com.github.calamari34.mantaflipbeta.features.Claimer.*;
@@ -55,12 +56,7 @@ public class ChatReceivedEvent {
                 return;
             }
 
-            if (message.contains("Putting coins in escrow")) {
 
-                long escrowTime = System.nanoTime();
-                elapsedTime = (escrowTime - PacketListener.auctionHouseOpenTime) / 1_000_000; // Convert to milliseconds
-                System.out.println("Elapsed time: " + elapsedTime + "ms");
-            }
 
             if (message.contains("Reached the active auctions limit!")) {
                 ah_full = true;
@@ -169,16 +165,16 @@ public class ChatReceivedEvent {
 //                    }
 
                     String bed = PacketListener.isbBed;
-                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, elapsedTime, bed, tag);
+                    WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, TimeElapsed, bed, tag);
 
                     HashMap<String, String> purchasedItem = new HashMap<>();
                     purchasedItem.put("Item Name", item);
                     purchasedItem.put("Buy Price", String.valueOf(price));
                     purchasedItem.put("Item Worth", String.valueOf(targetPrice));
                     purchasedItem.put("Profit", String.valueOf(profit));
-                    purchasedItem.put("Buy Speed", String.valueOf(elapsedTime) + "ms");
+                    purchasedItem.put("Buy Speed", String.valueOf(TimeElapsed) + "ms");
                     purchasedItem.put("Bed Flip", PacketListener.isbBed);
-                    sendMessage("Purchased " + item + " for profit: " + profit + " coins. Buy speed: " + elapsedTime + "ms");
+                    sendMessage("Purchased " + item + " for profit: " + profit + " coins. Buy speed: " + TimeElapsed + "ms");
 
                     bought_items.add(purchasedItem);
                 }

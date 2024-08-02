@@ -37,18 +37,23 @@ public class Cofl {
 
     private Thread antiafk;
 
-    private final Pattern pattern = Pattern.compile("type[\":]*flip");
 
-        public void handleMessage(String str) {
+
+    private static final Pattern pattern = Pattern.compile("type[\":]*flip");
+
+        public static void handleMessage(String str) {
 
         try {
-            if (!MantaFlip.shouldRun || PacketListener.relisting || !str.startsWith("Received:")) {
+
+
+            if (!MantaFlip.shouldRun || PacketListener.relisting) {
                 return;
             }
+            CaptchaHandler.handleCaptcha(str);
 
             if (pattern.matcher(str).find()) {
-                String[] split = str.split("Received: ");
-                JsonObject received = new JsonParser().parse(split[1]).getAsJsonObject();
+//                String[] split = str.split("Received: ");
+                JsonObject received = new JsonParser().parse(str).getAsJsonObject();
                 if (!received.get("type").getAsString().equals("flip")) return;
                 JsonObject auction = new JsonParser().parse(received.get("data").getAsString()).getAsJsonObject();
 
@@ -80,12 +85,6 @@ public class Cofl {
 
 //                customQueue.add(new QueueItem(auctionId, itemName, startingBid, target, auctionId));
 
-            } else {
-                // Assuming captcha messages are not flip type messages
-                String[] split = str.split("Received: ");
-                if (split.length > 1) {
-                    CaptchaHandler.handleCaptcha(split[1]);
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();

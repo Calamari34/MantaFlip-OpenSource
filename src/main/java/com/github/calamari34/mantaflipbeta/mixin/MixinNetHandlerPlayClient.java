@@ -18,8 +18,7 @@ import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 import static com.github.calamari34.mantaflipbeta.MantaFlip.startup;
-import static com.github.calamari34.mantaflipbeta.features.WebhookSend.resolveUsername;
-import static com.github.calamari34.mantaflipbeta.features.WebhookSend.sendStartEmbed;
+import static com.github.calamari34.mantaflipbeta.features.WebhookSend.*;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 @Mixin(NetHandlerPlayClient.class)

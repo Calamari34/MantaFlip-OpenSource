@@ -29,6 +29,7 @@ import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 public class Packets extends SimpleChannelInboundHandler<Packet> {
     private long startTime;
     private ChannelPipeline pipeline;
+    public static long TimeElapsed;
 
 
     @SubscribeEvent
@@ -57,6 +58,7 @@ public class Packets extends SimpleChannelInboundHandler<Packet> {
             S02PacketChat packet = (S02PacketChat) msg;
             if (packet.getChatComponent().getUnformattedText().replaceAll("§.", "").contains("Putting coins in escrow")) {
                 long endTime = System.currentTimeMillis();
+                TimeElapsed = endTime - startTime;
                 sendMessage("Auction bought in " + (endTime - startTime) + " ms");
             }
     }   }

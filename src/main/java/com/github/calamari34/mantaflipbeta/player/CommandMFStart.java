@@ -61,20 +61,20 @@ public class CommandMFStart extends CommandBase {
     private void startMFProcess(ICommandSender sender, GuiOpenEvent event) {
         executorService.schedule(() -> {
             sendMessage("Warping to your island");
-                Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
+            Minecraft.getMinecraft().thePlayer.sendChatMessage("/is");
 
-                try {
-                    Thread.sleep(6000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException(e);
-                }
+            try {
+                Thread.sleep(6000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
 
-                sendMessage("Claiming sold auctions");
-                MantaFlip.shouldRun = true;
+            sendMessage("Claiming sold auctions");
+            MantaFlip.shouldRun = true;
 
 
-                PacketListener.claimAuctions((GuiChest) event.gui);
+            PacketListener.claimAuctions((GuiChest) event.gui);
 
         }, 2, TimeUnit.SECONDS);
 

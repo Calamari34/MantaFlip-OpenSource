@@ -47,6 +47,10 @@ public class RemoteControl {
 
         bot.updateCommands().addCommands(
                 Commands.slash("profit", "Analysis of profit in a set session").setGuildOnly(true),
+                Commands.slash("toggle", "Toggle a feature of the mod").setGuildOnly(true),
+                Commands.slash("solve", "Solves the given captcha.").setGuildOnly(true)
+                .addOptions(new OptionData(OptionType.STRING, "line", "The type of feature to turn off")),
+
                 Commands.slash("statistics", "Statistics of current session").setGuildOnly(true),
                 Commands.slash("enable", "Enable a feature of the mod").setGuildOnly(true)
                         .addOptions(new OptionData(OptionType.STRING, "type", "The type of feature to turn on").addChoice("Auto Claimer", "claimer").addChoice("COFL Macro", "macro").addChoice("Auto Relister", "relister")),
