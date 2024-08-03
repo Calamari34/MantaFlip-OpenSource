@@ -52,8 +52,8 @@ public class Cofl {
             CaptchaHandler.handleCaptcha(str);
 
             if (pattern.matcher(str).find()) {
-//                String[] split = str.split("Received: ");
-                JsonObject received = new JsonParser().parse(str).getAsJsonObject();
+                String[] split = str.split("Received: ");
+                JsonObject received = new JsonParser().parse(split[1]).getAsJsonObject();
                 if (!received.get("type").getAsString().equals("flip")) return;
                 JsonObject auction = new JsonParser().parse(received.get("data").getAsString()).getAsJsonObject();
 
@@ -62,6 +62,7 @@ public class Cofl {
 
                 String tag = auction.get("auction").getAsJsonObject().get("tag").getAsString();
                 int target = auction.get("target").getAsInt();
+                String finder = auction.get("finder").getAsString();
                 JsonArray messages = auction.get("messages").getAsJsonArray();
 
                 String onClick = messages.get(0).getAsJsonObject().get("onClick").getAsString();
@@ -70,8 +71,10 @@ public class Cofl {
                 int profit = target - startingBid;
                 MantaFlip.itemTargetPrices.put(itemName, target);
                 MantaFlip.itemDisplayName.put(itemName, tag);
+                MantaFlip.itemFinder.put(itemName, finder);
                 MantaFlip.itemProfit.put(itemName, profit);
                 MantaFlip.itemID.put(itemName, auctionId);
+
                 auctionDetailsList.add(auctionDetails);
                 sendMessage("buying");
 //                auctionDetails.sendServerMessage();

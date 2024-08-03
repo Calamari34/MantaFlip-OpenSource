@@ -64,6 +64,7 @@ public class MantaFlip {
     public static final Map<String, String> itemID = new HashMap<>();
     public static final Map<String, Integer> itemTargetPrices = new HashMap<>();
     public static final Map<String, String> itemDisplayName = new HashMap<>();
+    public static final Map<String, String> itemFinder = new HashMap<>();
     public static final Map<String, Integer> itemProfit = new HashMap<>();
 
     public final ArrayList<HashMap<String, String>> sold_items = new ArrayList<>();
@@ -168,6 +169,9 @@ public class MantaFlip {
 
     public static synchronized String GetItemDisplayName(String itemName) {
         return itemDisplayName.getOrDefault(itemName, itemName);
+    }
+    public static synchronized String GetItemFinder(String itemName) {
+        return itemFinder.getOrDefault(itemName, itemName);
     }
 
     public static synchronized int getItemProfit(String itemName) {

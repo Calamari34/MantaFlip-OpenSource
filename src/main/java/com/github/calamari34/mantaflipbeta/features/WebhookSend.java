@@ -22,10 +22,8 @@ import java.time.Instant;
 import java.util.Random;
 
 
-import static com.github.calamari34.mantaflipbeta.MantaFlip.GetItemDisplayName;
-import static com.github.calamari34.mantaflipbeta.MantaFlip.getItemProfit;
-import static com.github.calamari34.mantaflipbeta.utils.Utils.formatNumbers;
-import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
+import static com.github.calamari34.mantaflipbeta.MantaFlip.*;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.*;
 
 public class WebhookSend {
 
@@ -65,6 +63,7 @@ public class WebhookSend {
         if (webhookUrl == null || webhookUrl.isEmpty()) {
             throw new IllegalArgumentException("Webhook URL is not set in the configuration.");
         }
+        String finder = GetItemFinder(item);
 
         DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
 
@@ -103,6 +102,7 @@ public class WebhookSend {
 
 
         String id = MantaFlip.itemID.get(item);
+        int purse = getPurse();
 
 
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
@@ -115,7 +115,7 @@ public class WebhookSend {
                 .addField("Value \uD83D\uDCB5 ", newTP, true)
                 .addField("Profit \uD83D\uDCC8 ", formattedProfit + " || " + roundedProfitPercentage + "%", true)
                 .setTimestamp(Instant.now())
-                .setFooter("Flipping Notification • MantaFlip", "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
+                .setFooter("Flipping Notification • Found by " + finder +" • Purse: " + formatNumbers(purse), "https://cdn.discordapp.com/attachments/1242759092645138474/1261447373503205506/Untitled-2.png?ex=6694f82a&is=6693a6aa&hm=c82875ec29c48e08bb9276675b95d226eedeb93329bfb5a10c77b4d29d6c1781&")
                 .setColor(new Color(0x1F73D9))
                 .setThumbnail("https://sky.coflnet.com/static/icon/" + tag);
 
@@ -184,6 +184,7 @@ public class WebhookSend {
 
     public static void sendSoldEmbed(String item, int Price, String purchaser) throws IOException {
         String tag = GetItemDisplayName(item);
+
         int profit = getItemProfit(item);
         double profitPercentage = ((double) profit / (Price - profit)) * 100;
         long roundedProfitPercentage = Math.round(profitPercentage);
