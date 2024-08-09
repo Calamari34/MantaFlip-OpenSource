@@ -37,13 +37,13 @@ public class AHConfig extends Config {
     public static int BED_SPAM_DELAY = 100;
 
     @Dropdown(name = "Auction Listing Length", options = {"1 Hour", "6 Hours", "12 Hours", "24 Hours", "2 Days"}, category = "Auction House", subcategory = "Flipper", description = "Length of the auction listing")
-    public static int AUCTION_LENGTH = 5;
+    public static int AUCTION_LENGTH = 4;
 
     @Checkbox(name = "Shorten Numbers when listing", category = "Auction House", subcategory = "Flipper", description = "Shorten numbers when listing items")
     public static boolean SHORTEN_NUMBERS = false;
 
     @Checkbox(name = "US Instance", category = "Auction House", subcategory = "Flipper", description = "Connects to the US instance of the Modsocket, choose yes if your using premium plus.")
-    public static boolean US_INSTANCE = true;
+    public static boolean US_INSTANCE = false;
 
     @Checkbox(name = "Auto Relist", category = "Auction House", subcategory = "Flipper", description = "Automatically relist items after auctions are expired")
     public static boolean AUTO_RELIST = true;

@@ -103,7 +103,10 @@ public class WebhookSend {
 
         String id = MantaFlip.itemID.get(item);
         int purse = getPurse();
-
+        itemFinder.clear();
+        itemProfit.clear();
+        itemTargetPrices.clear();
+        itemID.clear();
 
         DiscordWebhook.EmbedObject embed = new DiscordWebhook.EmbedObject();
         embed.setTitle("**Flip Purchased**")

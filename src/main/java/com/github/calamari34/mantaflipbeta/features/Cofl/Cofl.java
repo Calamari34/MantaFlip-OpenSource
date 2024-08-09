@@ -7,10 +7,12 @@ import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -54,6 +56,10 @@ public class Cofl {
             if (pattern.matcher(str).find()) {
                 String[] split = str.split("Received: ");
                 JsonObject received = new JsonParser().parse(split[1]).getAsJsonObject();
+//                JsonReader reader = new JsonReader(new StringReader(str));
+//                reader.setLenient(true);
+//                JsonObject received = JsonParser.parseReader(reader).getAsJsonObject();
+
                 if (!received.get("type").getAsString().equals("flip")) return;
                 JsonObject auction = new JsonParser().parse(received.get("data").getAsString()).getAsJsonObject();
 

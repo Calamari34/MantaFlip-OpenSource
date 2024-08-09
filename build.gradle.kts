@@ -100,6 +100,7 @@ dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
     shadowImpl("net.java.dev.jna:jna:5.8.0")
+    shadowImpl("org.java-websocket:Java-WebSocket:1.5.7")
 //    shadowImpl("org.java-websocket:Java-WebSocket:1.5.2")
 //    shadowImpl("org.bouncycastle:bcprov-jdk15on:1.70")
 }

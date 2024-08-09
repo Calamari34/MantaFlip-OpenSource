@@ -15,11 +15,13 @@ import com.github.calamari34.mantaflipbeta.features.Cofl.CustomQueue;
 import com.github.calamari34.mantaflipbeta.features.Cofl.QueueItem;
 import com.github.calamari34.mantaflipbeta.features.PacketListener;
 import com.github.calamari34.mantaflipbeta.features.Packets;
+//import com.github.calamari34.mantaflipbeta.features.WebSocketHandler;
 import com.github.calamari34.mantaflipbeta.player.CommandMFStart;
 import com.github.calamari34.mantaflipbeta.remoteControl.RemoteControl;
 import com.github.calamari34.mantaflipbeta.utils.ClassUtils;
 import com.github.calamari34.mantaflipbeta.utils.Clock;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,6 +41,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import cc.polyfrost.oneconfig.events.EventManager;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -50,6 +54,7 @@ import static com.github.calamari34.mantaflipbeta.config.AHConfig.*;
 
 import static com.github.calamari34.mantaflipbeta.features.PacketListener.relisting;
 import static com.github.calamari34.mantaflipbeta.utils.InventoryUtils.getInventoryName;
+import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 @Mod(modid = "mantaflipbeta", useMetadata=true)
 public class MantaFlip {
@@ -76,7 +81,7 @@ public class MantaFlip {
     public static List<Double> profitValues = new ArrayList<>(); // Cumulative profit values
 
     public static double cumulativeProfit = 0;
-
+//    public static WebSocketHandler webSocketHandler;
     public static long startTime;
     public static Cofl cofl;
     private final Clock clock = new Clock();
@@ -117,11 +122,43 @@ public class MantaFlip {
         MinecraftForge.EVENT_BUS.register(new PlayerLoginHandler());
         MinecraftForge.EVENT_BUS.register(ClassUtils.getInstance());
 
+        // Initialize and connect WebSocketHandler
+//        try {
+//            String ign = "PotatoesOnCrack";
+//            String Sid = "s7cme-pvjd5s8-1q1q-1q13q-";
+//            String serverUri = "ws://sky-us.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
+//            webSocketHandler = WebSocketHandler.getInstance(serverUri);
+//            webSocketHandler.connectBlocking();
+//        } catch (URISyntaxException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
 
     }
     public CustomQueue getQueue() {
         return this.queue;
     }
+
+//    public static String serverUri;
+//    public static void main(String[] args) {
+//        String ign = Minecraft.getMinecraft().getSession().getUsername();
+//        String Sid = "s7cme-pvjd5s8-1q1q-1q13q-";
+//
+//        try {
+//            if (US_INSTANCE)
+//            {
+//                serverUri = "ws://sky-us.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
+//            }
+//            else {
+//                serverUri = "wss://sky.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
+//            }
+//
+//            WebSocketHandler client = new WebSocketHandler(serverUri);
+//            client.connectBlocking();
+//        } catch (URISyntaxException | InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
 
