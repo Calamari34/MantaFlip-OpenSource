@@ -72,22 +72,7 @@ public class Utils {
     public static String removeChatColors(String input) {
         return input.replaceAll(COLOR_CODE_PATTERN, "");
     }
-
-//    private static void checkIfInSkyblock(String s) throws URISyntaxException {
-//        if (s.contains("SKYBLOCK") && !isInSkyblock) {
-//            isInSkyblock = true;
-//            if(Settings.antiBan) Utils.initiateChecker();
-//            if(Variables.getWebsocket() == null && Settings.hIDDEN) Variables.initWebsocket(Minecraft.getMinecraft().thePlayer.getDisplayNameString());
-//        } else if (!s.contains("SKYBLOCK") && isInSkyblock && Settings.autoLobby && isWorking) {
-//            setTimeout(() -> {
-//                Helpers.sendDebugMessage("Found outside of skyblock, taking you back in O_O");
-//                (Minecraft.getMinecraft()).thePlayer.sendChatMessage("/play sb");
-//            }, 5000);
-//            isInSkyblock = false;
-//        }
-//    }
-
-    public static void setTimeout(Runnable runnable, int delay){
+     public static void setTimeout(Runnable runnable, int delay){
         new Thread(() -> {
             try {
                 Thread.sleep(delay);

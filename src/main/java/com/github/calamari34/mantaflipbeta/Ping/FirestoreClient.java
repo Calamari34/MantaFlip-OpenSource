@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FirestoreClient {
-    private static final String FIRESTORE_URL = "https://firestore.googleapis.com/v1/projects/mantaflip-4f645/databases/(default)/documents/whitelist";
+    private static final String FIRESTORE_URL = ""; // URL to Firestore database
 
     public static boolean isWhitelisted(String uuid) throws Exception {
         URL url = new URL(FIRESTORE_URL);
@@ -58,7 +58,7 @@ public class FirestoreClient {
                 }
             }
         } else {
-            System.out.println("High ping :(");
+
         }
         return false;
     }
@@ -99,7 +99,7 @@ public class FirestoreClient {
                     }
                 }
             } else {
-                System.out.println("Wow really high ping :(");
+
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -38,21 +38,7 @@ public class GuiEventHandler {
     private static ScheduledExecutorService scheduler;
     public static long auctionHouseOpenTime = 0;
 
-//    @SubscribeEvent
-//    public void onGuiOpen(GuiOpenEvent event) {
-//        if (event.gui instanceof GuiChest) {
-//            GuiContainer guiContainer = (GuiContainer) event.gui;
-//            Container container = guiContainer.inventorySlots;
-//            String name = getInventoryName(guiContainer);
-//
-//            if (name != null && name.equals("BIN Auction View")) {
-//                auctionHouseOpenTime = System.nanoTime();
-//                handleBinAuctionView(guiContainer, name);
-//            } else if (name != null && name.equals("Confirm Purchase")) {
-//                handleConfirmPurchase(guiContainer, name);
-//            }
-//        }
-//    }
+
 
     public static void handleBuyFinished() {
         bedStarted = false;
@@ -82,24 +68,7 @@ public class GuiEventHandler {
                             if (Items.potato == stack.getItem()) {
                                 new Thread(() -> {
                                     sendMessage("Someone bought the auction already, skipping...");
-//                                    if (Settings.sendFlipBuyer) {
-//                                        NBTTagCompound tagCompound = stack.getTagCompound();
-//                                        NBTTagList tagList = tagCompound.getCompoundTag("display").getTagList("Lore", 8);
-//                                        java.util.List<String> loreList = new ArrayList<>();
-//                                        for (int i = 0; i < tagList.tagCount(); i++) {
-//                                            loreList.add(tagList.getStringTagAt(i));
-//                                        }
-//                                        String buyer = null;
-//                                        for (String loreLine : loreList) {
-//                                            if (!loreLine.startsWith("Buyer: ")) continue;
-//                                            buyer = loreLine.split("Buyer: ")[1];
-//                                        }
-//                                        String itemName = loreList.get(1);
-//                                        if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips)
-//                                            itemName.replace("[()#\\/0-9]+$", "");
-//                                        Helpers.sendChatMessage(itemName + " was bought by " + buyer + ".");
-//                                    }
-//                                    handleBuyFinished();
+
                                     try {
                                         Thread.sleep(50);
                                     } catch (InterruptedException e) {
@@ -189,35 +158,7 @@ public class GuiEventHandler {
                                 sendMessage("beds temporarily disabled");
                                 MantaFlip.mc.thePlayer.closeScreen();
                                 scheduler.shutdown();
-//                                if (currentTime < ending) {
-//                                scheduler.schedule(() -> {
-//                                    Minecraft.getMinecraft().addScheduledTask(() -> {
-//                                        try {
-//                                            for (int i = 0; i < 4; i++) {
-//                                                if (name.equals("BIN Auction View")) {
-//                                                    clickWindowSlot(slot);
-//                                                    Thread.sleep(3);
-//                                                }
-//                                            }
-//                                        } catch (Exception e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    });
-//                                }, ending - currentTime - waitTime, TimeUnit.MILLISECONDS);
 //
-//                                scheduler.schedule(() -> {
-//                                    Minecraft.getMinecraft().addScheduledTask(() -> {
-//                                        try {
-//                                            if (name.equals("BIN Auction View")) {
-//                                                MantaFlip.mc.thePlayer.closeScreen();
-//                                                sendMessage("Bed timing failed and we had to abort the auction :(");
-//                                            }
-//                                        } catch (Exception e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    });
-//                                }, 5000, TimeUnit.MILLISECONDS);
-//                            }
                         }
                     }
                     } catch (Exception e) {

@@ -262,108 +262,6 @@ public class PacketListener {
     }
 
 
-
-//    public static void checkAuctionView() {
-//        scheduler.schedule(() -> {
-//
-//            if (guiChest != null) {
-//                String windowTitle = getWindowTitle(guiChest);
-//                if (windowTitle != null) {
-//                    if (windowTitle.equals("BIN Auction View")) {
-//                        handleBinAuctionView(guiChest);
-//
-//                    } else if (windowTitle.equals("Confirm Purchase")) {
-//                        handleConfirmPurchase(guiChest);
-//                    }
-//                }
-//            }
-//        }, 0, TimeUnit.SECONDS);
-//    }
-
-
-
-//    private void handleBinAuctionView(GuiChest guiChest) {
-//        sendMessage("BIN Auction View");
-//        AtomicInteger totalClicks = new AtomicInteger(0);
-//        int slot = 31;
-//        final boolean[] isBed = {false};
-//        final int bedSpamDelay = 50;
-//        final int maxIterations = 100;
-//        PacketListener.isbBed = "false";
-//
-//        scheduler.scheduleAtFixedRate(() -> {
-//            try {
-//                if (guiChest == null || Minecraft.getMinecraft().thePlayer == null) {
-//
-//                    scheduler.shutdown();
-//                    return;
-//                }
-//
-//
-//
-//
-//                ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-//                if (itemStack != null) {
-//                    Item item = itemStack.getItem();
-//                    if (item == Items.gold_nugget) {
-//                        sendMessage("Gold nugget: clicking slot");
-//                        checkAndClickSlot(guiChest, slot, Items.gold_nugget);
-//                        isbBed = "false";
-//                    } else if (item == Items.potato) {
-//                        sendMessage("Potato: closing GUI");
-//                        isbBed = "false";
-//                        Minecraft.getMinecraft().displayGuiScreen(null);
-//
-//                        scheduler.shutdown();
-//                    } else if (item == Items.bed) {
-//                        sendMessage("Bed: closing GUI due to risky");
-//                        Minecraft.getMinecraft().displayGuiScreen(null);
-//
-//                        AtomicInteger iterationCount = new AtomicInteger(0);
-//                        isBed[0] = true;
-//                        isbBed = "true";
-//
-//
-//                        scheduler.scheduleWithFixedDelay(() -> {
-//                            try {
-//                                ItemStack innerItemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-//                                if (innerItemStack != null) {
-//                                    Item innerItem = innerItemStack.getItem();
-//                                    if (innerItem == Items.bed && !"Confirm Purchase".equals(getWindowTitle(guiChest)) && iterationCount.get() < maxIterations) {
-//                                        Minecraft.getMinecraft().addScheduledTask(() -> clickWindowSlot(slot));
-//                                        totalClicks.incrementAndGet();
-//                                        iterationCount.incrementAndGet();
-//
-//                                        if (innerItem == Items.potato) {
-//                                            Minecraft.getMinecraft().displayGuiScreen(null);
-//                                            scheduler.shutdown();
-//                                        } else if (totalClicks.get() > 100 && "BIN Auction View".equals(getWindowTitle(guiChest))) {
-//                                            Minecraft.getMinecraft().displayGuiScreen(null);
-//                                            scheduler.shutdown();
-//                                        }
-//                                    } else {
-//                                        scheduler.shutdown();
-//                                    }
-//                                } else {
-//
-//                                    scheduler.shutdown();
-//                                }
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                scheduler.shutdown();
-//                            }
-//                        }, 0, bedSpamDelay, TimeUnit.MILLISECONDS);
-//                    }
-//                } else {
-//                    sendMessage("Item stack is null");
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                scheduler.shutdown();
-//            }
-//        }, 0, 10, TimeUnit.MILLISECONDS);
-//    }
-
     public static void handleBinAuctionView(GuiContainer guiContainer) {
         auctionHouseOpenTime = System.currentTimeMillis();
         sendMessage("BIN Auction View started");
@@ -383,101 +281,7 @@ public class PacketListener {
         sendMessage("Item in slot " + slot + ": " + itemStack.getItem());
 
 
-//                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-//                sendMessage("Item in slot " + slot + ": " + itemStack.getItem().getUnlocalizedName());
-//                    if (itemStack != null) {
-//                        Item item = itemStack.getItem();
-//                        sendMessage("Item in slot " + slot + ": " + item.getUnlocalizedName());
-//                        if (item == Items.gold_nugget) {
-//                            sendMessage("Gold nugget found: clicking slot " + slot);
-//                            checkAndClickSlot(guiContainer, slot, Items.gold_nugget);
-//                            isbBed = "false";
-//                            return; // Add return to stop further processing
-//                        } else if (item == Items.poisonous_potato) {
-//                            sendMessage("Poisonous Potato found: closing GUI");
-//                            isbBed = "false";
-//                            MantaFlip.mc.thePlayer.closeScreen();
-//
-//                            scheduler.shutdown();
-//                            return;
-//                        }
-//
-//                        else if (item == Items.potato) {
-//                            sendMessage("Potato found: closing GUI");
-//                            isbBed = "false";
-//                            MantaFlip.mc.thePlayer.closeScreen();
-//
-//                            scheduler.shutdown();
-//                            return;
-//                        } else if (item == Items.bed) {
-//                            sendMessage("Bed found: closing GUI due to risky item");
-//                            MantaFlip.mc.thePlayer.closeScreen();
-//
-//                            scheduler.shutdown();
-//                            return;
-//                        } else if (item == Items.feather) {
-//                            sendMessage("Feather found: restarting scheduler");
-//                            MantaFlip.mc.thePlayer.closeScreen();
-//
-//                            scheduler.shutdown();
-//
-//                            return;
-//
-//                        }
-//                        else {
-//                            MantaFlip.mc.thePlayer.closeScreen();
-//                            scheduler.shutdown();
-//                            return;
-//                        }
-//
-//                    } else {
-//                        sendMessage("Item stack is null, slot: " + slot);
-//                    }
-
-
     }
-
-
-
-
-
-
-//    public static void handleConfirmPurchase(GuiContainer guiContainer) {
-//        System.out.println("Handle Confirm Purchase");
-//
-//        int slot = 11;
-//        final boolean[] itemClicked = {false};
-//        sendMessage("window clicked");
-//        clickWindowSlot(11);
-//
-//            try {
-//                if (!itemClicked[0]) {
-//                    ItemStack itemStack = InventoryUtils.getStackInOpenContainerSlot(slot);
-//                    if (itemStack != null) {
-//                        Item item = Item.getItemById(159);
-//                        if (itemStack.getItem() == item) {
-//                            clickWindowSlot(11);
-//                            for (int i = 1; i < 11; i++) {
-//                                if (!BED_SPAM) i = 11;
-//                                Thread.sleep(30);
-//                                if (GuiEventHandler.getInventoryName(guiContainer) != null) {
-//                                    clickWindowSlot(11);
-//                                } else {
-//                                    i = 11;
-//                                }
-//                            }
-//                            Minecraft.getMinecraft().displayGuiScreen(null);
-//                            itemClicked[0] = true;
-//
-//                        }
-//                    }
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                scheduler.shutdown();
-//            }
-//
-//    }
 
     public static void claimAuction(String item) {
         relisting = true;
@@ -680,13 +484,6 @@ public class PacketListener {
 
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-//        executorService.schedule(() -> {
-//            clickWindowSlot(15);
-//            System.out.println("Clicked on slot 15");
-//        }, 1, TimeUnit.SECONDS);
-
-
-        ////Find the gold horse armour and click it
 
 
         executorService.schedule(() -> {
@@ -758,28 +555,6 @@ public class PacketListener {
             }, 1, TimeUnit.SECONDS);
         }, 1, TimeUnit.SECONDS);
 
-//        }, 2, TimeUnit.SECONDS);
-
-//        executorService.schedule(() -> {
-//            if (Minecraft.getMinecraft().currentScreen instanceof GuiEditSign) {
-//                GuiEditSign gui = (GuiEditSign) Minecraft.getMinecraft().currentScreen;
-//                TileEntitySign tileSign = (TileEntitySign) ReflectionUtils.getFieldValue(gui, "tileSign");
-//                if (tileSign == null) {
-//                    tileSign = (TileEntitySign) ReflectionUtils.getFieldValue(gui, "field_146848_f");
-//                }
-//                if (tileSign != null) {
-//                    String priceStr = String.valueOf(price);
-//                    tileSign.signText[0] = new ChatComponentText(priceStr);
-//                    Packet<?> packet = new C12PacketUpdateSign(tileSign.getPos(), tileSign.signText);
-//                    Minecraft.getMinecraft().thePlayer.sendQueue.addToSendQueue(packet);
-//                    System.out.println("Typed " + targetPrice + " in the sign");
-//                } else {
-//                    System.out.println("TileEntitySign is null, cannot set price");
-//                }
-//            } else {
-//                System.out.println("Not in sign editing GUI");
-//            }
-//        }, 4, TimeUnit.SECONDS);
     }
 
 

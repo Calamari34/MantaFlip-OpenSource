@@ -71,4 +71,14 @@ public class InventoryUtils {
 
         return item.getSubCompound("display", false).getTagList("Lore", 8);
     }
+
+    public static String getItemIdFromInventory(String itemName) {
+        Minecraft mc = Minecraft.getMinecraft();
+        for (ItemStack itemStack : mc.thePlayer.inventory.mainInventory) {
+            if (itemStack != null && itemStack.getDisplayName().equals(itemName)) {
+                return itemStack.getItem().getRegistryName().toString();
+            }
+        }
+        return null; // Return null if the item is not found in the inventory
+    }
 }

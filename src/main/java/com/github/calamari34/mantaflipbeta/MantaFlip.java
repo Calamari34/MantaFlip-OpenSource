@@ -122,43 +122,11 @@ public class MantaFlip {
         MinecraftForge.EVENT_BUS.register(new PlayerLoginHandler());
         MinecraftForge.EVENT_BUS.register(ClassUtils.getInstance());
 
-        // Initialize and connect WebSocketHandler
-//        try {
-//            String ign = "PotatoesOnCrack";
-//            String Sid = "s7cme-pvjd5s8-1q1q-1q13q-";
-//            String serverUri = "ws://sky-us.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
-//            webSocketHandler = WebSocketHandler.getInstance(serverUri);
-//            webSocketHandler.connectBlocking();
-//        } catch (URISyntaxException | InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
 
     }
     public CustomQueue getQueue() {
         return this.queue;
     }
-
-//    public static String serverUri;
-//    public static void main(String[] args) {
-//        String ign = Minecraft.getMinecraft().getSession().getUsername();
-//        String Sid = "s7cme-pvjd5s8-1q1q-1q13q-";
-//
-//        try {
-//            if (US_INSTANCE)
-//            {
-//                serverUri = "ws://sky-us.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
-//            }
-//            else {
-//                serverUri = "wss://sky.coflnet.com/modsocket?version=1.5.5-Alpha&player="+ ign+"&SId=" + Sid;
-//            }
-//
-//            WebSocketHandler client = new WebSocketHandler(serverUri);
-//            client.connectBlocking();
-//        } catch (URISyntaxException | InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 
 
@@ -222,27 +190,14 @@ public class MantaFlip {
     public void onTick(TickEvent.ClientTickEvent event) {
         if (mc.thePlayer == null || event.phase != TickEvent.Phase.START) return;
         tickAmount++;
-        // Uncommented essential code to ensure they are executed
-//        if (tickAmount % 20 == 0) Utils.checkFooter();
-//        if (pageFlipper != null) pageFlipper.switchStates();
-//        if (tickAmount % (RELIST_CHECK_TIMEOUT * 72_000) == 0 && ScoreboardUtils.getSidebarLines().stream().map(ScoreboardUtils::cleanSB).anyMatch(s -> s.contains("SKYBLOCK")) && AUTO_RELIST) {
-//            PacketListener.shouldBeRelisting = true;
-//            if (relisting = false)
-//            {
-//                relister.toggle();
-//            }
-//
-//
-//        }
-//        if (claimer != null) claimer.onTick();
-//        if (relister != null) relister.onTick();
-
 
         if (mc.currentScreen instanceof GuiDisconnected && clock.passed()) {
             clock.schedule(RECONNECT_DELAY * 1000L);
             FMLClientHandler.instance().connectToServer(new GuiMultiplayer(new GuiMainMenu()), new ServerData(" ", "mc.hypixel.net", false));
         }
     }
+
+
 
 
 }

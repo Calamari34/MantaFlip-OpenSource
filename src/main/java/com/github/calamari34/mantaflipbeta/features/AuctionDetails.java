@@ -6,76 +6,49 @@ import net.minecraft.client.Minecraft;
 import static com.github.calamari34.mantaflipbeta.utils.Utils.sendMessage;
 
 public class AuctionDetails {
-    private String tag;
-    private String itemName;
-    private int startingBid;
-    private int target;
-    private String auctionId;
-//    private String finder;
-//    private String auctioneerId;
+    private final String itemName;
+    private final int startingBid;
+    private final int targetPrice;
+    private final String auctionId;
+    private final String tag;
 
-    public AuctionDetails(String itemName, int startingBid, int target, String auctionId, String tag) {
+    public AuctionDetails(String itemName, int startingBid, int targetPrice, String auctionId, String tag) {
         this.itemName = itemName;
         this.startingBid = startingBid;
-        this.target = target;
+        this.targetPrice = targetPrice;
         this.auctionId = auctionId;
         this.tag = tag;
-//        this.finder = finder;
-//        this.auctioneerId = auctioneerId;
     }
-
-//    public String getAuctioneerId() {
-//        return auctioneerId;
-//    }
-//
-//    public String getFinder() {
-//        return finder;
-//    }
 
     public String getItemName() {
         return itemName;
     }
-    public String getTag() { return tag;}
 
     public int getStartingBid() {
         return startingBid;
     }
 
-    public int getTarget() {
-        return target;
+    public int getTargetPrice() {
+        return targetPrice;
     }
 
     public String getAuctionId() {
         return auctionId;
     }
 
-    private boolean isOpen = false;
-
-    public boolean isOpen() {
-        return isOpen;
+    public String getTag() {
+        return tag;
     }
 
-    private static long lastCalledTime = 0;
-
-    public void sendServerMessage() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastCalledTime < 2000) {
-            // Less than 2 seconds have passed since the last call, return without doing anything
-            return;
+    public static int findTargetPriceByItemId(String itemId) {
+        for (AuctionDetails auctionDetails : MantaFlip.auctionDetailsList) {
+            if (auctionDetails.getAuctionId().equals(itemId)) {
+                return auctionDetails.getTargetPrice();
+            }
         }
-
-        lastCalledTime = currentTime;
-
-        String windowTitle = MantaFlip.getWindow();
-        System.out.println("window title: " + windowTitle);
-        if (windowTitle == null) {
-            Minecraft.getMinecraft().thePlayer.sendChatMessage("/viewauction " + getAuctionId());
-            sendMessage("Opening auction details for " + getItemName());
-        } else {
-            sendMessage("don't open");
-        }
-
+        return 0; // Return 0 if no AuctionDetails object with the given itemId is found
     }
-
-
 }
+
+
+

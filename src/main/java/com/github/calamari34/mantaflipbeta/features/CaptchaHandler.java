@@ -163,8 +163,7 @@ public class CaptchaHandler {
             EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
             commandHandler.executeCommand(player, onClickAction);
 
-//            Minecraft.getMinecraft().thePlayer.sendChatMessage(onClickAction);
-//            Minecraft.getMinecraft().thePlayer.sendChatMessage(onClickAction);
+
         } else {
             System.out.println(onClickAction);
         }

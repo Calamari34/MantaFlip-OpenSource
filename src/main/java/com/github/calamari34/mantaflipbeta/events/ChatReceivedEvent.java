@@ -90,7 +90,7 @@ public class ChatReceivedEvent {
                     String item = purchaseMatcher.group(1);
                     int price = Integer.parseInt(purchaseMatcher.group(2).replace(",", ""));
 
-                    int targetPrice = getTargetPrice(item);
+                    int targetPrice = MantaFlip.getTargetPrice(item);
                     System.out.println(item + " Target price: " + targetPrice);
                     int profit = targetPrice - price;
                     MantaFlip.updateProfit(profit);
@@ -148,21 +148,7 @@ public class ChatReceivedEvent {
                     System.out.println("tag" + tag);
 
 
-//                    AuctionDetails auctionDetails = findAuctionDetailsByItemName(itemName);
-//
-//                    String tag = ""; // Initialize tag variable
-//
-//// Check if auctionDetails is not null and then retrieve the tag
-//                    if (auctionDetails != null) {
-//                        tag = auctionDetails.getTag(); // Assuming getTag() method exists in AuctionDetails class
-//                        // Other existing code to retrieve auctioneerId and finder, if needed
-//                    }
 
-//                    if (auctionDetails != null) {
-//                        auctioneerId = auctionDetails.getAuctioneerId();
-//                        finder = auctionDetails.getFinder();
-//                        System.out.println("AuctioneerId: " + auctioneerId + " Finder: " + finder);
-//                    }
 
                     String bed = PacketListener.isbBed;
                     WebhookSend.sendPurchaseEmbed(item, price, targetPrice, profit, TimeElapsed, bed, tag);
@@ -250,36 +236,5 @@ public class ChatReceivedEvent {
         return null;
     }
 
-    private String formatItemName(String itemName) {
-        String[] reforgePrefixes = {
-                "Fabled", "Suspicious", "Gilded", "Salty", "Treacherous", "Stiff",
-                "Lucky", "Magnetic", "Fruitful", "Refined", "Stellar", "Mithraic",
-                "Auspicious", "Fleet", "Heated", "Gentle", "Odd", "Fast", "Fair",
-                "Epic", "Sharp", "Heroic", "Spicy", "Legendary", "Deadly", "Fine",
-                "Grand", "Hasty", "Neat", "Rapid", "Unreal", "Awkward", "Rich",
-                "Clean", "Fierce", "Heavy", "Light", "Mythic", "Pure", "Smart",
-                "Titanic", "Wise", "Perfect", "Necrotic", "Spiked", "Renowned",
-                "Cubic", "Reinforced", "Loving", "Ridiculous", "Empowered",
-                "Giant", "Submerged", "Jaded", "Bizarre", "Itchy", "Ominous",
-                "Pleasant", "Pretty", "Shiny", "Simple", "Strange", "Vivid",
-                "Godly", "Demonic", "Forceful", "Hurtful", "Keen", "Strong",
-                "Superior", "Unpleasant", "Zealous", "Silky", "Bloody", "Shaded",
-                "Sweet", "Warped", "Snowy", "Rooted", "Blooming", "Glistening",
-                "Strengthened", "Fortified", "Waxed", "Ancient", "Hyper", "Dirty",
-                "Chomp", "Pitchin", "Bulky", "Withered", "Mossy", "Festive",
-                "Headstrong", "Spiritual", "Coldfused", "Empty"
-        };
 
-        for (String prefix : reforgePrefixes) {
-            if (itemName.startsWith(prefix + " ")) {
-                itemName = itemName.substring(prefix.length()).trim();
-                break;
-            }
-        }
-
-        itemName = itemName.toUpperCase().replace(" ", "_").replaceAll("\\W", "");
-        itemName = itemName.replaceFirst("\\[Lvl \\d+\\] ", "");
-        itemName = itemName.replaceAll("✪{1,10}", "");
-        return itemName;
-    }
 }
